@@ -34,7 +34,13 @@ fn get_custom_song_folder(_folder: &str) {
 fn file_to_json(path: &PathBuf) -> jsondata::Json {
 
 	// Parse json
-	let json_string = fs::read_to_string(path).unwrap();
+	let mut json_bytes = fs::read_to_string(path).unwrap().as_bytes().to_vec();
+	if json_bytes.starts_with(&[239]) {
+		json_bytes.remove(2);
+		json_bytes.remove(1);
+		json_bytes.remove(0);
+	}
+	let json_string = String::from_utf8(json_bytes).unwrap();
 	let mut json_data: jsondata::Json = json_string.parse::<jsondata::Json>().unwrap();
 
 	// Validate json
