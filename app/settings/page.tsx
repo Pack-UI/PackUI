@@ -1,6 +1,6 @@
 'use client';
 
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/tauri';
 import { open } from '@tauri-apps/api/dialog';
 
 function SelectFolder() {
