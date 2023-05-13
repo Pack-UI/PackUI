@@ -1,6 +1,6 @@
 'use client';
 
-import Config from '../tauri/src/packUI.config.json';
+import Config from '../tauri/packUI.config.json';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -14,7 +14,6 @@ export default function Home() {
 			path: Config.customSongsFolder,
 		})
 			.then((x: any) => {
-				console.log(x);
 				setSongs(x);
 			})
 			.catch(console.error);

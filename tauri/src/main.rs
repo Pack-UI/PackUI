@@ -10,15 +10,19 @@ use std::{fs::{self, File}, path::{Path, PathBuf}, io::{ BufReader, BufRead}};
 use types::Song;
 
 fn main() {
-tauri::Builder::default()
-	.invoke_handler(tauri::generate_handler![get_all_songs, get_custom_song_folder, set_custom_song_folder])
-	.run(tauri::generate_context!())
-	.expect("error while running tauri application");
+	if !Path::exists(Path::new("packUI.config.json")) {
+		fs::write("packUI.config.json", r#"{"$schema": "https://raw.githubusercontent.com/thijnmens/PackUI/main/tauri/packUI.schema.json","customSongsFolder": "E:\\SteamLibrary\\steamapps\\common\\A Dance of Fire and Ice\\CustomSongs"}"#).expect("Could not create config file")
+	}
+
+	tauri::Builder::default()
+		.invoke_handler(tauri::generate_handler![get_all_songs, get_custom_song_folder, set_custom_song_folder])
+		.run(tauri::generate_context!())
+		.expect("error while running tauri application");
 }
 
 #[tauri::command]
 fn get_custom_song_folder(_folder: &str) {
-	let config = File::open(r"D:\Projects\PackUI\tauri\src\packUI.config.js").unwrap();
+	let config = File::open("packUI.config.json").unwrap();
 	let lines = BufReader::new(config).lines();
 	for line in lines {
 		if line.as_ref().unwrap().trim().starts_with("customSongsFolder") {
@@ -62,9 +66,9 @@ fn file_to_json(path: &PathBuf) -> jsondata::Json {
 fn set_custom_song_folder(folder: &str) {
 
 	// Get config data
-	let mut json_data = file_to_json(&PathBuf::from(r"D:\Projects\PackUI\tauri\src\packUI.config.json"));
+	let mut json_data = file_to_json(&PathBuf::from("packUI.config.json"));
 	json_data.set("/customSongsFolder", jsondata::Json::String(folder.to_string())).expect("Could not update customSongFolder");
-	fs::write(r"D:\Projects\PackUI\tauri\src\packUI.config.json", json_data.to_string()).expect("Could not write to file");
+	fs::write("packUI.config.json", json_data.to_string()).expect("Could not write to file");
 }
 
 
