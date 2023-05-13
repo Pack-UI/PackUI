@@ -15,6 +15,19 @@
 			"all": false,
 			"fs": {
 				"all": true
+			},
+			"protocol": {
+				"all": false,
+				"asset": true,
+				"assetScope": ["**/**"]
+			},
+			"dialog": {
+				"all": false,
+				"ask": false,
+				"confirm": false,
+				"message": false,
+				"open": true,
+				"save": false
 			}
 		},
 		"bundle": {
@@ -51,7 +64,7 @@
 			}
 		},
 		"security": {
-			"csp": null
+			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
 		},
 		"updater": {
 			"active": false
@@ -59,10 +72,10 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"height": 600,
+				"height": 800,
 				"resizable": true,
 				"title": "PackUI",
-				"width": 800
+				"width": 1200
 			}
 		]
 	}

@@ -1,15 +1,17 @@
 'use client';
 
+import Config from '../tauri/src/packUI.config.json';
 import { invoke } from '@tauri-apps/api/tauri';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import MapCard from './components/mapcard';
 
 export default function Home() {
-	let [songs, setSongs] = useState<string[] | null>(null);
+	let [songs, setSongs] = useState<Song[] | null>(null);
 
 	useEffect(() => {
 		invoke('get_all_songs', {
-			path: 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\A Dance of Fire and Ice\\CustomSongs',
+			path: Config.customSongsFolder,
 		})
 			.then((x: any) => {
 				console.log(x);
@@ -19,14 +21,14 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className=" text-white flex gap-4 w-full h-full p-8">
-			<div className="border-white w-full h-full border-2 rounded-lg p-8 items-center justify-center text-center">
+		<div className=" text-white flex gap-4 w-full h-[90vh] p-8">
+			<div className="border-white w-full h-full border-2 rounded-lg p-8 items-center justify-center text-center overflow-y-scroll scrollbar-pill">
 				<h1 className="mb-2">Maps</h1>
 				<hr />
-				<div className="flex-1 gap-2 p-2">
+				<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
 					{songs ? (
 						songs.map((song, i) => {
-							return <h1 key={i}>{song.split('\\').at(-1)}</h1>;
+							return <MapCard key={i} song={song} />;
 						})
 					) : (
 						<Image

@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "PackUI Config",
+	"description": "Config schema for PackUI",
+	"type": "object",
+
+	"properties": {
+		"customSongsFolder": {
+			"description": "Path to the folder where the custom songs are stored",
+			"type": "string"
+		}
+	}
+}
