@@ -17,7 +17,7 @@ use types::{Color, Data, HashMapData, Pack, Song};
 
 fn main() {
     if !Path::exists(Path::new("packUI.config.json")) {
-        fs::write("packUI.config.json", r#"{"$schema": "https://raw.githubusercontent.com/thijnmens/PackUI/main/tauri/packUI.schema.json","customSongsFolder": "C:\\Program Files (x86)\\Steam\\SteamLibrary\\steamapps\\common\\A Dance of Fire and Ice\\CustomSongs"}"#).expect("Could not create config file")
+        fs::write("packUI.config.json", r#"{"$schema": "https://raw.githubusercontent.com/thijnmens/PackUI/main/schemas/packUI.config.schema.json","customSongsFolder": "C:\\Program Files (x86)\\Steam\\SteamLibrary\\steamapps\\common\\A Dance of Fire and Ice\\CustomSongs"}"#).expect("Could not create config file")
     }
 
     tauri::Builder::default()
