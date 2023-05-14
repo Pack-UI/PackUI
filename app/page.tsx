@@ -5,16 +5,17 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import MapCard from './components/mapcard';
+import PackCard from './components/packcard';
 
 export default function Home() {
-	let [songs, setSongs] = useState<Song[] | null>(null);
+	let [data, setData] = useState<Data | null>(null);
 
 	useEffect(() => {
-		invoke('get_all_songs', {
+		invoke('get_all_data', {
 			path: Config.customSongsFolder,
 		})
 			.then((x: any) => {
-				setSongs(x);
+				setData(x);
 			})
 			.catch(console.error);
 	}, []);
@@ -25,8 +26,8 @@ export default function Home() {
 				<h1 className="mb-2">Maps</h1>
 				<hr />
 				<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
-					{songs ? (
-						songs.map((song, i) => {
+					{data ? (
+						data.songs.map((song, i) => {
 							return <MapCard key={i} song={song} />;
 						})
 					) : (
@@ -43,6 +44,21 @@ export default function Home() {
 			<div className="border-white w-full h-full border-2 rounded-lg p-8  items-center justify-center text-center">
 				<h1 className="mb-2">Packs</h1>
 				<hr />
+				<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
+					{data ? (
+						data.packs.map((pack, i) => {
+							return <PackCard key={i} pack={pack} />;
+						})
+					) : (
+						<Image
+							src="/spinner.svg"
+							className="animate-spin w-5 h-5 m-auto text-white"
+							alt="loading..."
+							width={20}
+							height={20}
+						/>
+					)}
+				</div>
 			</div>
 		</div>
 	);

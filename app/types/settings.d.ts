@@ -1,3 +1,0 @@
-interface Settings {
-	customSongsFolder: string;
-}
