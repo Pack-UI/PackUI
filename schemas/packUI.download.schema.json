@@ -38,20 +38,20 @@
 			"maxLength": 7
 		},
 		"creationDate": {
-			"description": "Epoch timestamp of the creation date/time []",
+			"description": "Epoch timestamp of the creation date/time [1684097000]",
 			"type": "string"
 		},
 		"lastUpdate": {
-			"description": "Epoch timestamp of the last pack update []",
+			"description": "Epoch timestamp of the last pack update [1684097000]",
 			"type": "string"
 		},
 		"cover": {
-			"description": "Url to pack cover image []",
+			"description": "Url to pack cover image [https://cover.example.com/example.png]",
 			"type": "string",
 			"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
 		},
 		"icon": {
-			"description": "Url to pack icon []",
+			"description": "Url to pack icon [https://icon.example.com/example.png]",
 			"type": "string",
 			"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
 		},
@@ -82,7 +82,7 @@
 						"type": "integer"
 					},
 					"download": {
-						"description": "Direct download link to files as zip with .adofai file in the root",
+						"description": "Direct download link to files as zip with .adofai file in the root [https://download.example.com/example.zip]",
 						"type": "string",
 						"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)(.zip)$"
 					},
@@ -109,7 +109,7 @@
 						"type": "integer"
 					},
 					"cover": {
-						"description": "Url to level cover image []",
+						"description": "Url to level cover image [https://cover.example.com/example.png]",
 						"type": "string",
 						"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
 					}
