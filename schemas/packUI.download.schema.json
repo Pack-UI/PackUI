@@ -31,6 +31,13 @@
 			"minimum": 1,
 			"maximum": 10
 		},
+		"tags": {
+			"description": "Tags related to the pack, for a full list see https://github.com/thijnmens/packui/wiki/tags [\"Ranked\", \"Hard\"]",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
 		"color": {
 			"description": "Pack color (# not required) [#FA8C9D]",
 			"type": "string",
