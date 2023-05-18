@@ -9,11 +9,10 @@ mod types;
 use jsondata::Json;
 use std::{
     collections::HashMap,
-    fs::{self, DirEntry, File},
-    io::{BufRead, BufReader},
+    fs::{self, DirEntry},
     path::{Path, PathBuf},
 };
-use types::{Color, Data, HashMapData, Pack, Song};
+use types::{Color, Data, DownloadPack, HashMapData, Pack, Song};
 
 fn main() {
     if !Path::exists(Path::new("packUI.config.json")) {
@@ -23,38 +22,17 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_all_data,
-            get_custom_song_folder,
-            set_custom_song_folder
+            set_custom_song_folder,
+            get_downloadable_packs,
+            get_downloadable_pack_at_index
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-#[tauri::command]
-fn get_custom_song_folder(_folder: &str) {
-    let config = File::open("packUI.config.json").unwrap();
-    let lines = BufReader::new(config).lines();
-    for line in lines {
-        if line
-            .as_ref()
-            .unwrap()
-            .trim()
-            .starts_with("customSongsFolder")
-        {
-            let mut chars = line
-                .as_ref()
-                .unwrap()
-                .split_once(':')
-                .unwrap_or_default()
-                .1
-                .trim()
-                .chars();
-            chars.next();
-            chars.next_back();
-            chars.next_back();
-            println!("{}", chars.as_str());
-        }
-    }
+fn get_config_field(field: &str) -> Json {
+    let json = file_to_json(&Path::new("packUI.config.json").to_path_buf());
+    return json[field].clone();
 }
 
 fn pack_to_dict<'a>(
@@ -91,7 +69,7 @@ fn remove_bom(data: &mut Vec<u8>) -> String {
     return String::from_utf8(data.to_vec()).unwrap();
 }
 
-fn adofai_to_json(path: &PathBuf) -> jsondata::Json {
+fn file_to_json(path: &PathBuf) -> jsondata::Json {
     // Parse json
     let mut json_bytes = fs::read_to_string(path).unwrap().as_bytes().to_vec();
     let json_string = remove_bom(json_bytes.as_mut());
@@ -118,10 +96,37 @@ fn adofai_to_json(path: &PathBuf) -> jsondata::Json {
     return json_data;
 }
 
+#[tauri::command(async)]
+async fn get_downloadable_packs() -> Vec<DownloadPack> {
+    let mut packs: Vec<DownloadPack> = Vec::new();
+    let sources = get_config_field("sources").to_array().unwrap();
+    for source in sources {
+        let url = source.to_string().replace("\"", "").trim().to_string();
+        let r = reqwest::get(url).await.unwrap();
+        let data = r.json::<DownloadPack>().await.unwrap();
+        packs.push(data);
+    }
+    return packs;
+}
+
+#[tauri::command(async)]
+async fn get_downloadable_pack_at_index(index: usize) -> DownloadPack {
+    let sources = get_config_field("sources").to_array().unwrap();
+    let url = sources[index]
+        .to_string()
+        .replace("\"", "")
+        .trim()
+        .to_string();
+    let r = reqwest::get(url).await.unwrap();
+    let data = r.json::<DownloadPack>().await.unwrap();
+
+    return data;
+}
+
 #[tauri::command]
 fn set_custom_song_folder(folder: &str) {
     // Get config data
-    let mut json_data = adofai_to_json(&PathBuf::from("packUI.config.json"));
+    let mut json_data = file_to_json(&PathBuf::from("packUI.config.json"));
     json_data
         .set(
             "/customSongsFolder",
@@ -221,7 +226,7 @@ fn get_all_data(path: &str) -> Data {
                     .ends_with(".pack")
                 {
                     // Get song data
-                    let song_data = adofai_to_json(
+                    let song_data = file_to_json(
                         &Path::new(
                             packsong_path
                                 .as_ref()
@@ -246,7 +251,7 @@ fn get_all_data(path: &str) -> Data {
         };
 
         // Get song data
-        let song_data = adofai_to_json(&song_path);
+        let song_data = file_to_json(&song_path);
 
         // Create song
         let song = json_to_song(song_data, dir.unwrap());

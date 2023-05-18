@@ -19,7 +19,7 @@ pub struct Song {
     pub duration: i32,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Color {
     pub R: i8,
     pub G: i8,
@@ -93,8 +93,36 @@ impl Pack {
     }
 }
 
-pub struct Download {
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct DownloadPack {
+    pub version: String,
     pub title: String,
+    pub description: String,
+    pub author: String,
+    pub artist: String,
+    pub difficulty: i8,
+    pub tags: Option<Vec<String>>,
+    pub color: Option<String>,
+    pub creationDate: Option<String>,
+    pub lastUpdate: Option<String>,
+    pub cover: Option<String>,
+    pub icon: Option<String>,
+    pub songs: Vec<DownloadSong>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct DownloadSong {
+    pub title: String,
+    pub author: String,
+    pub artist: String,
+    pub bpm: Option<i32>,
+    pub download: String,
+    pub seizureWarning: Option<bool>,
+    pub difficulty: Option<i8>,
+    pub events: Option<i32>,
+    pub tiles: Option<i32>,
+    pub duration: Option<i16>,
+    pub cover: Option<String>,
 }
 
 #[derive(serde::Serialize)]

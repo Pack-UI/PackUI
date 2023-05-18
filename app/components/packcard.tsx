@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import path from 'path';
-import { IoIosSpeedometer } from 'react-icons/io';
-import { TbRectangle } from 'react-icons/tb';
 import { BsFire, BsHash } from 'react-icons/bs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 

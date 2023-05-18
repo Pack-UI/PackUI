@@ -28,6 +28,36 @@ interface Data {
 	packs: Pack[];
 }
 
+interface DownloadPack {
+	version: string;
+	title: string;
+	description: string;
+	author: string;
+	artist: string;
+	difficulty: i8;
+	tags: string[]?;
+	color: Color?;
+	creationDate: string?;
+	lastUpdate: string?;
+	cover: string?;
+	icon: string?;
+	songs: DownloadSong[];
+}
+
+interface DownloadSong {
+	title: string;
+	author: string;
+	artist: string;
+	bpm: i32?;
+	download: string;
+	seizureWarning: bool?;
+	difficulty: i8?;
+	events: i32?;
+	tiles: i32?;
+	duration: i16?;
+	cover: string?;
+}
+
 interface Pack {
 	path: string;
 	songs: Song[];
