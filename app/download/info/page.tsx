@@ -1,12 +1,24 @@
 'use client';
 import { invoke } from '@tauri-apps/api/tauri';
-import { useEffect, useState } from 'react';
-import { BsFire, BsHash, BsDownload } from 'react-icons/bs';
+import { useEffect, useState, useRef } from 'react';
+import { BsFire, BsHash, BsRecordFill } from 'react-icons/bs';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import Popup from 'reactjs-popup';
+import { PopupActions } from 'reactjs-popup/dist/types';
+import ProgressPopup from '@/app/components/progress';
 
 export default function DownloadInfo() {
 	let [data, setData] = useState<DownloadPack | null>(null);
+	let [count, setCount] = useState<number>(0);
+	let indeterminateCheckbox = useRef<HTMLInputElement | null>(null);
+	let progress = useRef<PopupActions | null>(null);
+
+	let checkboxRefs: HTMLInputElement[] = [];
+
+	let setRef = (ref: HTMLInputElement) => {
+		checkboxRefs.push(ref);
+	};
 
 	const id = Number(useSearchParams().get('id'));
 
@@ -19,6 +31,27 @@ export default function DownloadInfo() {
 			})
 			.catch(console.error);
 	}, [id]);
+
+	async function Sync() {
+		var download: boolean[] = [];
+		checkboxRefs.forEach((checkbox) => {
+			download.push(checkbox.checked);
+		});
+		setCount(download.filter((e) => e).length);
+
+		progress.current?.open();
+
+		var e = await invoke('sync_packs', { pack: data, download: download });
+
+		function wait() {
+			return new Promise((resolve) => {
+				setTimeout(resolve, 1000);
+			});
+		}
+		await wait();
+
+		progress.current?.close();
+	}
 
 	if (!data) {
 		return (
@@ -34,9 +67,11 @@ export default function DownloadInfo() {
 		);
 	}
 
-	console.log(data);
 	return (
 		<div className="mx-16 mt-16 mb-24 text-white">
+			<Popup ref={progress} position="left center">
+				<ProgressPopup count={count}></ProgressPopup>
+			</Popup>
 			<div className="flex rounded-lg bg-white bg-opacity-5 p-2">
 				<div className="h-full w-64 float-left">
 					<Image
@@ -78,35 +113,100 @@ export default function DownloadInfo() {
 								</div>
 							</div>
 						</div>
+						<hr className="ml-12 mr-4 px-4 mt-2 opacity-25" />
 						<div>
-							<button className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out">
+							<button
+								className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+								onClick={() => Sync()}
+							>
 								Sync selected
 							</button>
-							<button className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out">
+							<button
+								className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+								onClick={() => {
+									if (indeterminateCheckbox.current) {
+										indeterminateCheckbox.current.indeterminate = false;
+										indeterminateCheckbox.current.checked = true;
+
+										checkboxRefs.forEach((ref, i) => {
+											checkboxRefs[i].checked = true;
+										});
+									}
+								}}
+							>
 								Download all
 							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="flex rounded-lg bg-white bg-opacity-5 p-2 mt-4">
+
+			<div className="flex-1 rounded-lg bg-white bg-opacity-5 p-2 mt-4">
+				<div className="p-2 ml-1">
+					<input
+						className="w-5 h-5 accent-green-500 hover:scale-90 transition-all duration-100 ease-in-out"
+						type="checkbox"
+						ref={indeterminateCheckbox}
+						onChange={() => {
+							if (indeterminateCheckbox.current?.checked) {
+								checkboxRefs.forEach((ref, i) => {
+									checkboxRefs[i].checked = true;
+								});
+							} else {
+								checkboxRefs.forEach((ref, i) => {
+									checkboxRefs[i].checked = false;
+								});
+							}
+						}}
+					/>
+				</div>
 				<div className="grid grid-flow-row grid-cols-1 border-2 p-2 border-white rounded-lg border-opacity-10">
 					{data.songs.map((song, i) => {
+						if (song.download.trim() == '') {
+							console.log(song.title);
+						}
 						return (
 							<div
 								key={i}
 								id={i.toString()}
 								className="w-full flex align-middle my-2 gap-4 bg-white bg-opacity-0 cursor-default hover:bg-opacity-10"
 							>
-								<div className="m-1">
+								<div className="ml-1 h-min my-auto">
 									<input
-										className="w-5 h-5 accent-green-500 hover:scale-90 transition-all duration-100 ease-in-out"
+										className="w-5 h-5 mt-1 accent-green-500 hover:scale-90 transition-all duration-100 ease-in-out"
 										type="checkbox"
+										ref={setRef}
 										id={i.toString()}
+										onChange={() => {
+											if (
+												checkboxRefs.filter((e) => !e.checked).length ==
+													0 &&
+												indeterminateCheckbox.current
+											) {
+												indeterminateCheckbox.current.indeterminate = false;
+												indeterminateCheckbox.current.checked = true;
+											} else if (
+												checkboxRefs.filter((e) => e.checked).length == 0 &&
+												indeterminateCheckbox.current
+											) {
+												indeterminateCheckbox.current.indeterminate = false;
+												indeterminateCheckbox.current.checked = false;
+											} else if (indeterminateCheckbox.current) {
+												indeterminateCheckbox.current.indeterminate = true;
+												indeterminateCheckbox.current.checked = false;
+											}
+										}}
 									/>
 								</div>
-								<h1 className="font-bold text-xl">{song.title}</h1>
-								<p className="text-lg">by {song.author}</p>
+								<h1 className="font-bold text-xl h-fit my-auto">{song.title}</h1>
+								<p className="text-lg h-fit my-auto">by {song.author}</p>
+								<BsRecordFill
+									className={`${
+										song.download.trim() == ''
+											? 'text-gray-600'
+											: 'text-red-500'
+									} h-6 w-6 ml-auto mr-2 rounded-full my-auto`}
+								/>
 							</div>
 						);
 					})}

@@ -28,7 +28,18 @@ interface Data {
 	packs: Pack[];
 }
 
+interface SyncPack {
+	folder: string;
+	songs: SyncSong[];
+}
+
+interface SyncSong {
+	folder: string;
+	download: string;
+}
+
 interface DownloadPack {
+	src: string;
 	version: string;
 	title: string;
 	description: string;

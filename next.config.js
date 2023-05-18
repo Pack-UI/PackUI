@@ -5,6 +5,12 @@ const nextConfig = {
 	// See https://nextjs.org/docs/messages/export-image-api for different workarounds.
 	images: {
 		unoptimized: true,
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: '**',
+			},
+		],
 	},
 	compiler: {
 		styledComponents: true,

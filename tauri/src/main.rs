@@ -7,11 +7,15 @@
 mod types;
 
 use jsondata::Json;
+use manic::Downloader;
 use std::{
     collections::HashMap,
     fs::{self, DirEntry},
+    io::Cursor,
     path::{Path, PathBuf},
 };
+use tauri::{AppHandle, Manager};
+use tokio::fs::File;
 use types::{Color, Data, DownloadPack, HashMapData, Pack, Song};
 
 fn main() {
@@ -24,7 +28,8 @@ fn main() {
             get_all_data,
             set_custom_song_folder,
             get_downloadable_packs,
-            get_downloadable_pack_at_index
+            get_downloadable_pack_at_index,
+            sync_packs
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -103,10 +108,67 @@ async fn get_downloadable_packs() -> Vec<DownloadPack> {
     for source in sources {
         let url = source.to_string().replace("\"", "").trim().to_string();
         let r = reqwest::get(url).await.unwrap();
-        let data = r.json::<DownloadPack>().await.unwrap();
+        let mut data = r.json::<DownloadPack>().await.unwrap();
+        data.src = Option::Some(source.to_string());
         packs.push(data);
     }
     return packs;
+}
+
+#[tauri::command(async)]
+async fn sync_packs(pack: DownloadPack, download: Vec<bool>, app_handle: AppHandle) -> Vec<bool> {
+    let success: Vec<bool> = Vec::new();
+    for (i, song) in pack.songs.iter().enumerate() {
+        if download[i] && song.download != "" {
+            let client = Downloader::new(&song.download, 5)
+                .await
+                .expect("Failed to download file");
+            let data_vec = client
+                .download()
+                .await
+                .expect("Failed to download")
+                .to_vec()
+                .await;
+
+            let mut data = data_vec.as_slice();
+            /*client
+            .download_and_save(Path::new("./download/song.zip").to_str().unwrap())
+            .await
+            .expect("Failed to save file");*/
+            /*let mut r = reqwest::get(&song.download)
+                .expect("Failed to download");
+
+            if r.status() != StatusCode::OK {
+                continue;
+            }*/
+            let mut file = File::create(Path::new("./download/song.zip"))
+                .await
+                .expect("Failed to create file");
+            tokio::io::copy(&mut data, &mut file)
+                .await
+                .expect("Failed to write to file");
+
+            let mut custom_songs_folder = get_config_field("customSongsFolder").to_string();
+            custom_songs_folder.pop();
+            custom_songs_folder.remove(0);
+            let a = Path::new(&custom_songs_folder)
+                .join(format!(
+                    "{0} - {1} - {2}",
+                    song.title, song.artist, song.artist
+                ))
+                .to_path_buf();
+
+            zip_extract::extract(
+                Cursor::new(fs::read(Path::new("download/song.zip")).unwrap()),
+                &a,
+                false,
+            )
+            .expect("Failed to unzip file");
+
+            app_handle.emit_all(&"download", i).expect("Failed to emit");
+        }
+    }
+    return success;
 }
 
 #[tauri::command(async)]

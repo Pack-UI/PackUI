@@ -3,7 +3,7 @@
 
 use std::str::FromStr;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Song {
     pub songPath: String,
     pub title: String,
@@ -61,7 +61,7 @@ impl FromStr for Color {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Pack {
     pub path: String,
     pub songs: Vec<Song>,
@@ -95,6 +95,7 @@ impl Pack {
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct DownloadPack {
+    pub src: Option<String>,
     pub version: String,
     pub title: String,
     pub description: String,
