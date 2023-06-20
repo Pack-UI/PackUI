@@ -7,7 +7,7 @@ import PackManager from "./helpers/packManager";
 export default function communicationHandler() {
 
 	/* FileParser */
-	const fileParser = new FileParser(new Config().customSongsFolder);
+	const fileParser = new FileParser();
 
 	ipcMain.handle('fileParser.GetAllSongs', (event, data) => fileParser.GetAllSongs());
 	ipcMain.handle('fileParser.GetAllPacks', (event, data) => fileParser.GetAllPacks());
@@ -22,5 +22,11 @@ export default function communicationHandler() {
 	/* Pack Manager */
 	const packManager = new PackManager();
 	
-	ipcMain.handle('packManager.GetDownloadablePacks', (event, data) => packManager.GetDownloadablePacks());
+	ipcMain.handle('packManager.GetDownloadablePacks', (event, data) => {
+		const packs = packManager.GetDownloadablePacks();
+		packs.then(data => packManager.packs = data)
+		return packs;
+	});
+	
+	ipcMain.handle('packManager.GetPackByIndex', (event, data: number) => packManager.GetPackByIndex(data))
 }

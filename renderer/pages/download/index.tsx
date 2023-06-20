@@ -11,14 +11,16 @@ export default function Download() {
 		if (packs == null) ipcRenderer.invoke('packManager.GetDownloadablePacks').then(_ => setPacks(_));
 	}
 	
-
 	return <div className="m-16 text-white">
-		{packs ? packs.map((pack, i) => <DownloadCard key={i} index={i} pack={pack}/>) : <Image
-			src="/spinner.svg"
-			className="animate-spin w-5 h-5 m-auto text-white"
-			alt="loading..."
-			width={20}
-			height={20}
-		/>}
+		{packs ? packs.map((pack, i) => <DownloadCard key={i} index={i} pack={pack}/>) : (
+			<div className="flex justify-center w-5 mx-auto">
+				<Image
+					src="/spinner.svg"
+					className="animate-spin w-5 h-5 mx-auto text-white"
+					alt="loading..."
+					width={20}
+					height={20}
+				/>
+			</div>)}
 	</div>;
 }

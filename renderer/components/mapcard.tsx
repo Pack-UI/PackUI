@@ -13,22 +13,24 @@ export default function MapCard(props: Props) {
 
 	return <div className="w-full h-32 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20">
 		<div className="h-full w-32 float-left">
-			<Image
-				src={
-					song.coverFileName
-						? `http://localhost:8888/api/GetImageFromDisk?file=${song.coverFileName}`
-						: '/logo.png'
-				}
-				alt={`${song.title} Cover`}
-				width="96"
-				height="96"
-				className="mt-[10%] ml-[10%] object-cover h-24 w-24 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg"
-				onError={e => {
-					e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
-				}}
-				placeholder='blur'
-				blurDataURL="/shimmer.svg"
-			/>
+			<div className="h-24 w-24 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg">
+				<Image
+					src={
+						song.coverFileName
+							? `http://localhost:8888/api/GetImageFromDisk?file=${song.coverFileName}`
+							: '/logo.png'
+					}
+					alt={`${song.title} Cover`}
+					width="96"
+					height="96"
+					className="rounded-lg"
+					onError={e => {
+						e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
+					}}
+					placeholder='blur'
+					blurDataURL="/shimmer.svg"
+				/>
+			</div>
 		</div>
 
 		<div className="w-full float-right relative">

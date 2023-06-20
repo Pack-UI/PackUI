@@ -39,6 +39,10 @@ CommunicationHandler();
 		const mainWindow = createWindow('PackUI', {
 			width: 1200,
 			height: 800,
+			icon: path.join(__dirname, "../resources/icon.ico"),
+			title: "PackUI",
+			autoHideMenuBar: true,
+			backgroundColor: "#2D2D2D"
 		});
 
 		// Send popup event on error
@@ -57,6 +61,7 @@ CommunicationHandler();
 			const port = process.argv[2];
 			await mainWindow.loadURL(`http://localhost:${port}/home`);
 		}
+		
 	}
 	log.info(`\n\n\nNEW APPLICATION BOOT AT ${new Date(Date.now()).toISOString()}\n\n\n`)
 })();

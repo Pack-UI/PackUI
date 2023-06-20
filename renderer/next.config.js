@@ -7,6 +7,6 @@ module.exports = {
         return config;
     },
     images: {
-        domains: ['localhost', 'cdn.packui.net'],
+        domains: ['localhost', 'cdn.packui.net', 'media.tenor.com', 'i.imgur.com'],
     }
 };
