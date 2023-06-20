@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Download API Response schema",
+  "description": "Schema that PackUI download API's must follow, data examples are in square brackets -> []",
+  "type": "object",
+
+  "properties": {
+	"version": {
+	  "description": "Pack version [1.2.4]",
+	  "type": "string"
+	},
+	"title": {
+	  "description": "Pack Title [Example title]",
+	  "type": "string"
+	},
+	"description": {
+	  "description": "Pack description [Example description]",
+	  "type": "string"
+	},
+	"author": {
+	  "description": "Pack author [@Thijnmens]",
+	  "type": "string"
+	},
+	"artist": {
+	  "description": "Pack artist [Various artists]",
+	  "type": "string"
+	},
+	"difficulty": {
+	  "description": "Pack difficulty (must be between 1 and 10) [9]",
+	  "type": "integer",
+	  "minimum": 1,
+	  "maximum": 10
+	},
+	"tags": {
+	  "description": "Tags related to the pack, for a full list see https://github.com/thijnmens/packui/wiki/tags [\"Ranked\", \"Hard\"]",
+	  "type": "array",
+	  "items": {
+		"type": "string"
+	  }
+	},
+	"color": {
+	  "description": "Pack color (# not required) [#FA8C9D]",
+	  "type": "string",
+	  "minLength": 6,
+	  "maxLength": 7
+	},
+	"creationDate": {
+	  "description": "Epoch timestamp of the creation date/time [1684097000]",
+	  "type": "string"
+	},
+	"lastUpdate": {
+	  "description": "Epoch timestamp of the last pack update [1684097000]",
+	  "type": "string"
+	},
+	"cover": {
+	  "description": "Url to pack cover image [https://cover.example.com/example.png]",
+	  "type": "string",
+	  "pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
+	},
+	"icon": {
+	  "description": "Url to pack icon [https://icon.example.com/example.png]",
+	  "type": "string",
+	  "pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
+	},
+	"songs": {
+	  "description": "Array of songs",
+	  "type": "array",
+	  "items": {
+		"$schema": "http://json-schema.org/draft-04/schema#",
+		"title": "Song API response schema ",
+		"description": "Schema that PackUI download API's must follow, data examples are in square brackets -> []",
+		"type": "object",
+
+		"properties": {
+		  "title": {
+			"description": "Level Title [Example title]",
+			"type": "string"
+		  },
+		  "author": {
+			"description": "Level Author [Example author]",
+			"type": "string"
+		  },
+		  "artist": {
+			"description": "Song artist [Example artist]",
+			"type": "string"
+		  },
+		  "bpm": {
+			"description": "Song bpm [128]",
+			"type": "integer"
+		  },
+		  "download": {
+			"description": "Direct download link to files as zip with .adofai file in the root [https://download.example.com/example.zip]",
+			"type": "string",
+			"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)(.zip)$"
+		  },
+		  "seizureWarning": {
+			"description": "If level has a seizure warning [false]",
+			"type": "boolean"
+		  },
+		  "difficulty": {
+			"description": "Level difficulty (must be between 1 and 10) [9]",
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 10
+		  },
+		  "events": {
+			"description": "Amount of level events [3546]",
+			"type": "integer"
+		  },
+		  "tiles": {
+			"description": "Amount of tiles in level [2468]",
+			"type": "integer"
+		  },
+		  "duration": {
+			"description": "Duration of level in seconds [267]",
+			"type": "integer"
+		  },
+		  "cover": {
+			"description": "Url to level cover image [https://cover.example.com/example.png]",
+			"type": "string",
+			"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
+		  }
+		},
+		"required": ["title", "author", "artist", "download"]
+	  }
+	}
+  },
+  "required": ["version", "title", "description", "author", "artist", "difficulty", "songs"]
+}

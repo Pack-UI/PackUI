@@ -4,17 +4,8 @@ import {createWindow} from './helpers';
 import CommunicationHandler from './communicationHandler';
 import log from 'electron-log';
 import path from "path";
-
-// Create communication channels
-CommunicationHandler();
-
-// Configure logger
-log.transports.file.level = 'info';
-log.transports.file.resolvePathFn = () => path.join(app.getPath('logs'), new Date(Date.now()).toDateString() + '.log');
-
-// Error handler
-log.errorHandler.startCatching()
-
+import * as fss from "fs";
+const configTemplate = require('../config/PackUI.config.json');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -23,6 +14,23 @@ if (isProd) {
 } else {
 	app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
+
+// Configure logger
+log.transports.file.level = 'info';
+log.transports.file.resolvePathFn = () => path.join(app.getPath('logs'), new Date(Date.now()).toDateString() + '.log');
+
+// Error handler
+log.errorHandler.startCatching()
+
+// Create config if it doesn't exist
+const configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
+
+if (!fss.existsSync(configPath)) {
+	fss.writeFileSync(configPath, JSON.stringify(configTemplate), "utf-8")
+}
+
+// Create communication channels
+CommunicationHandler();
 
 (async () => {
 	await app.whenReady();

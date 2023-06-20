@@ -20,7 +20,7 @@ export default function ErrorPopup() {
 	
 	return (
 		<Popup open={status.shown} position="center center" onClose={() => toggleStatus({ shown: false, message: status.message })} >
-			<div className="bg-black rounded-3xl text-white bg-opacity-60 w-[50vw] h-[50vh] bg-black flex-1 p-4 relative">
+			<div className="bg-black rounded-3xl text-white bg-opacity-90 w-[50vw] h-[50vh] bg-black flex-1 p-4 relative">
 				<h1 className="text-2xl font-bold mx-auto text-center">{GetErrorMessage()}</h1>
 				<hr className="my-4" />
 				<p className="text-xl font-mono mx-auto">{status.message}</p>

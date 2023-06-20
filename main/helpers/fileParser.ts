@@ -5,27 +5,29 @@ import * as fss from 'fs';
 import path from 'path';
 import {jsonrepair} from 'jsonrepair';
 import log from "electron-log";
+import Config from "./config";
 
 export default class FileParser {
-	customSongsPath: string;
-
-	constructor(customSongsPath: string) {
-		this.customSongsPath = customSongsPath;
-	}
-
 	async GetAllPacks() {
+		const customSongsPath = new Config().customSongsFolder
+		
+		if (!fss.existsSync(customSongsPath)) {
+			log.error(`Path ${customSongsPath} does not exist`);
+			return new Promise<Pack[]>(resolve => resolve([]))
+		}
+		
 		return new Promise<Pack[]>(async (resolve, _) => {
 
-			log.info("Loading packs in " + this.customSongsPath)
+			log.info("Loading packs in " + customSongsPath)
 
 			let packs: Pack[] = [];
 
 			// Get all dirs in custom songs
-			const folders = await fs.readdir(this.customSongsPath);
+			const folders = await fs.readdir(customSongsPath);
 
 			await Promise.all(
 				folders.map(async folder => {
-					const folderPath = path.join(this.customSongsPath, folder);
+					const folderPath = path.join(customSongsPath, folder);
 					const files = await fs.readdir(folderPath);
 
 					// Check if folder is pack
@@ -75,8 +77,16 @@ export default class FileParser {
 	}
 
 	async GetAllSongs(pathToScan?: string) {
-		const rootPath = pathToScan ? pathToScan : this.customSongsPath;
 
+		const customSongsPath = new Config().customSongsFolder
+		
+		const rootPath = pathToScan ? pathToScan : customSongsPath;
+
+		if (!fss.existsSync(customSongsPath)) {
+			log.error(`Path ${rootPath} does not exist`);
+			return new Promise<Song[]>(resolve => resolve([]))
+		}
+		
 		log.info("Loading songs in " + rootPath)
 
 		return new Promise<Song[]>(async (resolve, _) => {
