@@ -119,6 +119,10 @@
 			"description": "Url to level cover image [https://cover.example.com/example.png]",
 			"type": "string",
 			"pattern": "^https?://(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$"
+		  },
+		  "song": {
+		  	"description": "File name of the song [song.mp3]",
+			"type": "string"
 		  }
 		},
 		"required": ["title", "author", "artist", "download"]
