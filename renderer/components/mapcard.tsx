@@ -2,7 +2,7 @@ import Image from 'next/image';
 import {IoIosSpeedometer} from 'react-icons/io';
 import {TbRectangle} from 'react-icons/tb';
 import {BsFire} from 'react-icons/bs';
-import Song from '../../main/classes/song';
+import Song from '@classes/song';
 
 interface Props {
 	song: Song;
@@ -12,8 +12,8 @@ export default function MapCard(props: Props) {
 	const song = props.song;
 
 	return <div className="w-full h-32 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20">
-		<div className="h-full w-32 float-left">
-			<div className="h-24 w-24 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg">
+		<div className="h-full w-32 float-left pt-2">
+			<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-24 w-24">
 				<Image
 					src={
 						song.coverFileName
@@ -23,7 +23,7 @@ export default function MapCard(props: Props) {
 					alt={`${song.title} Cover`}
 					width="96"
 					height="96"
-					className="rounded-lg"
+					className="object-cover h-24 w-24 rounded-lg"
 					onError={e => {
 						e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
 					}}

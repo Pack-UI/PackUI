@@ -1,6 +1,6 @@
 import Image from "next/image";
 import {BsFire, BsHash} from "react-icons/bs";
-import Pack from "../../main/classes/pack";
+import Pack from "@classes/pack";
 
 interface Props {
 	pack: Pack;
@@ -10,24 +10,25 @@ export default function PackCard(props: Props) {
 	const pack = props.pack;
 
 	pack.title = pack.title.replace(/<\/?[^>]+(>|$)/g, "");
-
-	const imageUrl = pack.coverImagePath ? "" : "/icon.png";
+	
 	return <div className="w-full h-32 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20">
-		<div className="h-full w-32 float-left">
-			<Image
-				src={
-					pack.coverImagePath
-						? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
-						: '/logo.png'
-				}
-				alt={`${pack.title} Cover`}
-				width="96"
-				height="96"
-				className="mt-[10%] ml-[10%] object-cover h-24 w-24 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg"
-				onError={e => {
-					e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
-				}}
-			/>
+		<div className="h-full w-32 float-left pt-2">
+			<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-24 w-24">
+				<Image
+					src={
+						pack.coverImagePath
+							? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+							: '/logo.png'
+					}
+					alt={`${pack.title} Cover`}
+					width="96"
+					height="96"
+					className="object-cover h-24 w-24 rounded-lg"
+					onError={e => {
+						e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
+					}}
+				/>
+			</div>
 		</div>
 
 		<div className="w-full float-right relative">

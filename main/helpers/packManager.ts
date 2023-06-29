@@ -1,56 +1,85 @@
 import Config from "./config";
 import Pack from "../classes/pack";
-import log from "electron-log";
-import fetch from "node-fetch";
-import {Validator} from "jsonschema";
+import fetch from 'node-fetch';
+import Logger from "electron-log";
 import Song from "../classes/song";
-const downloadSchema = require('../../schemas/PackUI.download.schema.json');
 
 export default class PackManager {
-	packs: Pack[]
+	sources: string[];
+	packs: Pack[];
 	
-	GetPackByIndex(index: number): Pack {
-		if (index > this.packs.length - 1) {
-			return;
-		}
-		return this.packs[index];
+	constructor() {
+		this.sources = new Config().sources;
 	}
-	
-	GetDownloadablePacks(): Promise<Pack[]> {
-		return new Promise<Pack[]>(async (resolve, reject) => {
-			resolve(await Promise.all(new Config().sources.map(async (url, index) => {
-				const response = await fetch(url);
+
+	/**
+	 *
+	 * Safe get pack at index from last source fetch
+	 * @returns Pack or undefined if index out of bounds
+	 */
+	GetPackAtIndex(index: number): Pack | undefined {
+		return this.packs.length > index ? this.packs[index] : undefined;
+	}
+
+	/**
+	 * 
+	 * Get all packs from sources configured in PackUI.config.json
+	 * @returns Promise of Pack[]
+	 */
+	async GetDownloadablePacks(): Promise<Pack[]> {
+		
+		let packs: Pack[] = [];
+		
+		return new Promise<Pack[]>(async (resolve) => {
+			
+			await Promise.all(new Config().sources.map(async (url) => {
 				
-				if (!response.ok) {
-					log.error(`Invalid response from "${url}", ${response.statusText}`);
+				const resp = await fetch(url);
+				
+				if (!resp.ok) {
+					Logger.error(`Invalid response from "${url}", code: ${resp.status}`);
 					return;
 				}
 				
-				const data = JSON.parse(await response.text());
+				const packData = await resp.json();
 				
-				const v = new Validator();
-				
-				if (!v.validate(data, downloadSchema).valid) {
-					log.warn(`Response from "${url}" did not pass validation, please contact the respective developer`)	
-				}
-				
-				return new Pack(
+				packs.push(new Pack(
 					url,
-					data["title"] || "Unknown title",
-					data["description"] || "",
-					data["author"] || "",
-					data["artist"] || "",
-					data["difficulty"] || 0,
-					data["color"] || "#2D2D2D",
-					data["creationDate"] || new Date(Date.now()),
-					data["lastUpdate"] || new Date(Date.now()),
-					data["songs"] as Song[] || [],
-					data["version"] || "1.0.0",
-					data["tags"] || [],
-					data["cover"] || "/logo.png",
-					data["icon"] || "/logo.png"
-				)
-			})))
+					packData["title"] || "Title",
+					packData["description"] || "",
+					packData["author"] || "",
+					packData["artist"] || "",
+					packData["difficulty"] || 8,
+					packData["color"] || "#FFFFFF",
+					packData["creationDate"] || "",
+					packData["lastUpdate"] || "",
+					packData["songs"].map((songData) => {
+						return new Song(
+							songData["download"] || "",
+							songData["title"] || "Title",
+							songData["artist"] || "",
+							songData["author"] || "",
+							songData["bpm"] || 0,
+							songData["seizureWarning"] || false,
+							songData["difficulty"] || 8,
+							songData["song"] || "",
+							songData["cover"] || "/logo.png",
+							songData["events"] || 0,
+							songData["tiles"] || 0,
+							songData["duration"] || 0,
+							songData["download"] || ""
+						)
+					}) || [],
+					packData["version"] || undefined,
+					packData["tags"] || undefined,
+					packData["coverImagePath"] || undefined,
+					packData["iconImagePath"] || undefined
+				));
+				
+			}));
+			
+			this.packs = packs;
+			resolve(packs);
 		});
 	}
 }

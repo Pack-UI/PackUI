@@ -2,12 +2,12 @@
 
 import {useState} from "react";
 import Image from "next/image";
-import MapCard from "../components/mapcard";
-import PackCard from "../components/packcard";
+import MapCard from "@components/mapcard";
+import PackCard from "@components/packcard";
 import * as electron from "electron";
 import {GetAllPacks, GetAllSongs} from "../tools/communicationHelper";
-import Song from "../../main/classes/song";
-import Pack from "../../main/classes/pack";
+import Song from "@classes/song";
+import Pack from "@classes/pack";
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);

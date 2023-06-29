@@ -1,6 +1,6 @@
 import Image from "next/image";
 import {BsDownload, BsFire, BsHash} from "react-icons/bs";
-import Pack from "../../main/classes/pack";
+import Pack from "@classes/pack";
 
 interface Props {
 	pack: Pack;
@@ -11,19 +11,27 @@ export default function DownloadCard(props: Props) {
 	const pack = props.pack;
 	const date = new Date(Number(pack.creationDate) * 1000);
 
-	return <a href={`/download/info/${props.index}`}>
+	return <a href={`/download/info?id=${props.index}`}>
 		<div className="w-full h-64 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20 mb-2">
-			<div className="h-full w-64 float-left">
-				<div className="h-52 w-52 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg">
+			<div className="h-full w-52 float-left pt-2">
+				<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-52 w-52">
 					<Image
-						src={pack.coverImagePath || "/icon.png"}
+						src={
+							pack.coverImagePath
+								? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+								: '/logo.png'
+						}
 						alt={`${pack.title} Cover`}
 						width="208"
 						height="208"
-						className="rounded-lg"
+						className="object-cover h-52 w-52 rounded-lg"
+						onError={e => {
+							e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
+						}}
 					/>
 				</div>
 			</div>
+
 			<div className="w-full float-right relative">
 				<div className="flex items-center mt-3">
 					<h1 className="font-bold text-lg h-8 pl-16">{pack.title}</h1>

@@ -1,8 +1,8 @@
 import React from "react";
 import type {AppProps} from "next/app";
 import "../styles/globals.css";
-import Navbar from "../components/navbar";
-import ErrorPopup from "../components/ErrorPopup";
+import Navbar from "@components/navbar";
+import ErrorPopup from "@components/ErrorPopup";
 
 function PackUI({Component, pageProps}: AppProps) {
 	return (

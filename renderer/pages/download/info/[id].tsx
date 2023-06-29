@@ -1,14 +1,15 @@
+
 import {useEffect, useRef, useState} from "react";
 import {BsFire, BsHash, BsRecordFill} from "react-icons/bs";
 import Image from "next/image";
 import Popup from "reactjs-popup";
+import { useRouter } from "next/router"
 import {PopupActions} from "reactjs-popup/dist/types";
-import ProgressPopup from "../../../components/progress";
-import Pack from "../../../../main/classes/pack";
-import {useRouter} from 'next/router';
+import ProgressPopup from "@components/progress";
+import Pack from "@classes/pack";
 import {ipcRenderer} from "electron";
 import {AiOutlineArrowLeft} from "react-icons/ai";
-import Link from "next/link";
+import Logger from "electron-log/renderer";
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
@@ -24,7 +25,7 @@ export default function DownloadInfo() {
 	const date = new Date(Number(pack?.creationDate) * 1000);
 
 	if (ipcRenderer) {
-		if (pack == null) ipcRenderer.invoke('packManager.GetPackByIndex', id).then(data => setPack(data));
+		if (pack == null) ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => _ == undefined ? console.error('Index out of range, this should not happen') : setPack(_));
 	}
 	
 	async function Sync() {
@@ -33,8 +34,6 @@ export default function DownloadInfo() {
 		setCount(download.filter(e => e).length);
 
 		progress.current?.open();
-
-		//let e = await invoke("sync_packs", {pack: pack, download});
 
 		function wait() {
 			return new Promise(resolve => setTimeout(resolve, 1000));
@@ -57,25 +56,27 @@ export default function DownloadInfo() {
 		</div>;
 	}
 
-	return (
-		<div className="mx-16 mt-16 mb-24 text-white relative">
+	return <div className="mx-16 mt-16 mb-24 text-white">
 		<Popup ref={progress} position="left center">
 			<ProgressPopup count={count}></ProgressPopup>
 		</Popup>
-		<div className="flex rounded-lg bg-white bg-opacity-5 p-2">
-			<div className="absolute top-2 right-2 z-10">
-				<a href="/download" >
-					<AiOutlineArrowLeft className="h-6 w-6 mx-auto" aria-hidden="true" />
-				</a>
-			</div>
-			<div className="h-full w-64 float-left">
-				<div className="mt-[5%] mb-[5%] ml-[10%] object-cover h-52 w-52 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg">
+		<div className="flex rounded-lg bg-white bg-opacity-5 p-2 h-64">
+			<div className="h-full w-52 float-left pt-2">
+				
+				<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-52 w-52">
 					<Image
-						src={pack.coverImagePath || "/icon.png"}
+						src={
+							pack.coverImagePath
+								? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+								: '/logo.png'
+						}
 						alt={`${pack.title} Cover`}
 						width="208"
 						height="208"
-						className="rounded-lg"
+						className="object-cover h-52 w-52 rounded-lg"
+						onError={e => {
+							e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
+						}}
 					/>
 				</div>
 			</div>
@@ -210,6 +211,5 @@ export default function DownloadInfo() {
 				})}
 			</div>
 		</div>
-	</div>
-	);
+	</div>;
 }

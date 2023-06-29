@@ -16,7 +16,7 @@ function classNames(...classes) {
 
 function ChangeCurrentPage(href: string) {
 	navigation.forEach((data, index) => {
-		navigation[index].current = data.href == href
+		navigation[index].current = href.includes(data.href);
 	})
 }
 

@@ -1,4 +1,4 @@
-import Song from "./song";
+import Song from "@classes/song";
 
 export default class Pack {
 	packPath: string;

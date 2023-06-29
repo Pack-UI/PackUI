@@ -11,7 +11,7 @@
 	tiles: number;
 	duration: number;
 	coverFileName: string;
-	songFileName: string;
+	songFileName?: string;
 
 	constructor(
 		songPath: string,
@@ -21,8 +21,8 @@
 		bpm: number,
 		seizureWarning: boolean,
 		difficulty: number,
-		songFilePath: string,
-		coverFilePath: string,
+		songFileName: string,
+		coverFileName: string,
 		events: number,
 		tiles: number,
 		duration: number,
@@ -35,8 +35,8 @@
 		this.bpm = bpm;
 		this.seizureWarning = seizureWarning;
 		this.difficulty = difficulty;
-		this.songFileName = songFilePath;
-		this.coverFileName = coverFilePath;
+		this.songFileName = songFileName;
+		this.coverFileName = coverFileName;
 		this.events = events;
 		this.tiles = tiles;
 		this.duration = duration;
