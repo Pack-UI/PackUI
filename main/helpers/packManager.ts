@@ -3,6 +3,9 @@ import Pack from "../classes/pack";
 import fetch from 'node-fetch';
 import Logger from "electron-log";
 import Song from "../classes/song";
+import {Validator} from "jsonschema";
+import log from "electron-log";
+const downloadSchema = require('../../schemas/PackUI.download.schema.json');
 
 export default class PackManager {
 	sources: string[];
@@ -37,11 +40,17 @@ export default class PackManager {
 				const resp = await fetch(url);
 				
 				if (!resp.ok) {
-					Logger.error(`Invalid response from "${url}", code: ${resp.status}`);
+					Logger.error(`Invalid response from "${url}", code: ${resp.statusText}`);
 					return;
 				}
 				
 				const packData = await resp.json();
+
+				const v = new Validator();
+
+				if (!v.validate(packData, downloadSchema).valid) {
+					log.warn(`Response from "${url}" did not pass validation, please contact the respective developer`)
+				}
 				
 				packs.push(new Pack(
 					url,
