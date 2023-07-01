@@ -22,7 +22,8 @@
     "paths": {
       "@components/*": ["renderer/components/*"],
       "@classes/*": ["main/classes/*"],
-      "@helpers/*": ["main/helpers/*"]
+      "@helpers/*": ["main/helpers/*"],
+      "@tools/*": ["renderer/tools/*"]
     }
   },
   "exclude": [

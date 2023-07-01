@@ -34,7 +34,7 @@ export default function MapCard(props: Props) {
 		</div>
 
 		<div className="w-full float-right relative">
-			<h1 className="font-bold">{song.title.replace(/<\/?[^>]+(>|$)/g, '')}</h1>
+			<h1 className="font-bold">{song.title?.replace(/<\/?[^>]+(>|$)/g, '')}</h1>
 			<div className="absolute bottom-0 w-full grid grid-cols-3 grid-flow-col opacity-75 cursor-default">
 				<div className="group relative">
 					<BsFire className="h-6 w-6 mx-auto" aria-hidden="true"/>

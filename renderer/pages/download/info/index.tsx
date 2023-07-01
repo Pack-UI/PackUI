@@ -1,5 +1,4 @@
-
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {BsFire, BsHash, BsRecordFill} from "react-icons/bs";
 import Image from "next/image";
 import Popup from "reactjs-popup";
@@ -9,23 +8,48 @@ import ProgressPopup from "@components/progress";
 import Pack from "@classes/pack";
 import {ipcRenderer} from "electron";
 import {AiOutlineArrowLeft} from "react-icons/ai";
-import Logger from "electron-log/renderer";
+import {VerifyPackIntegrity} from "@tools/communicationHelper";
+import path from "path";
+import Config from "@helpers/config";
+import ProgressBar from "@ramonak/react-progress-bar";
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
+	let [installedSongs, setInstalledSongs] = useState<boolean[] | null>(null)
 	let [count, setCount] = useState<number>(0);
 	let indeterminateCheckbox = useRef<HTMLInputElement | null>(null);
 	let progress = useRef<PopupActions | null>(null);
+	let integrity = useRef<PopupActions | null>(null);
 
 	let checkboxRefs: HTMLInputElement[] = [];
 	
-	let setRef = (ref: HTMLInputElement) => checkboxRefs.push(ref);
+	let setRef = (ref: HTMLInputElement) => {
+		checkboxRefs.push(ref);
+		if (checkboxRefs.length === installedSongs.length) {
+			
+			installedSongs.forEach((installed, index) => checkboxRefs[index].checked = installed)
+			
+			const installedSongAmount = installedSongs.filter(e => e).length
+			
+			if (installedSongAmount === checkboxRefs.length) {
+				indeterminateCheckbox.current.checked = true;
+				indeterminateCheckbox.current.indeterminate = false;
+			} else if (installedSongAmount != 0) {
+				indeterminateCheckbox.current.checked = false;
+				indeterminateCheckbox.current.indeterminate = true;
+			}
+		}
+	};
 
-	const id = Number(useRouter().query["id"]);
+	const router = useRouter();
+	const id = Number(router.query["id"]);
 	const date = new Date(Number(pack?.creationDate) * 1000);
 
 	if (ipcRenderer) {
 		if (pack == null) ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => _ == undefined ? console.error('Index out of range, this should not happen') : setPack(_));
+		if (installedSongs == null && pack != null) ipcRenderer.invoke('fileParser.GetCacheFromPack', pack)
+			.then(cache => setInstalledSongs(pack.songs.map((song, index) => cache.filter(e => e.name == song.title).length != 0)))
+			.catch(() => installedSongs = new Array<boolean>(pack.songs.length))
 	}
 	
 	async function Sync() {
@@ -34,17 +58,21 @@ export default function DownloadInfo() {
 		setCount(download.filter(e => e).length);
 
 		progress.current?.open();
-
+		
 		function wait() {
 			return new Promise(resolve => setTimeout(resolve, 1000));
 		}
-
-		await wait();
-
-		progress.current?.close();
+		
+		if (ipcRenderer) {
+			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download: download}).then(async () => {await wait(); progress.current?.close();});
+		}
+	}
+	
+	function ReloadPage() {
+		router.reload();
 	}
 
-	if (!pack) {
+	if (!pack || !installedSongs) {
 		return <div className="m-16 text-white">
 			<Image
 				src="/spinner.svg"
@@ -55,19 +83,32 @@ export default function DownloadInfo() {
 			/>
 		</div>;
 	}
+	
 
-	return <div className="mx-16 mt-16 mb-24 text-white">
-		<Popup ref={progress} position="left center">
+	return <div className="mx-16 mt-16 mb-24 text-white relative">
+		<Popup ref={progress} position="left center" onClose={ReloadPage}>
 			<ProgressPopup count={count}></ProgressPopup>
 		</Popup>
+		<Popup ref={integrity} position="left center">
+			<div className="w-screen h-screen bg-black bg-opacity-50 text-white">
+				<div className="w-1/2 h-1/3 absolute top-1/3 left-1/4 bg-gray-900 bg-opacity-100 rounded-lg shadow-2xl">
+					<h1>X Songs failed</h1>
+				</div>
+			</div>
+		</Popup>
 		<div className="flex rounded-lg bg-white bg-opacity-5 p-2 h-64">
+			<div className="absolute top-2 right-2 z-10">
+				<a href="/download" >
+					<AiOutlineArrowLeft className="h-6 w-6 mx-auto" aria-hidden="true" />
+				</a>
+			</div>
 			<div className="h-full w-52 float-left pt-2">
 				
 				<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-52 w-52">
 					<Image
 						src={
 							pack.coverImagePath
-								? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+								? pack.coverImagePath
 								: '/logo.png'
 						}
 						alt={`${pack.title} Cover`}
@@ -131,10 +172,18 @@ export default function DownloadInfo() {
 									checkboxRefs.forEach((ref, i) => {
 										checkboxRefs[i].checked = true;
 									});
+									
+									Sync();
 								}
 							}}
 						>
-							Download all
+							(Re)download all
+						</button>
+						<button
+							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+							onClick={() => VerifyPackIntegrity(ipcRenderer, pack)}
+						>
+							Verify Pack Integrity
 						</button>
 					</div>
 				</div>
@@ -202,8 +251,8 @@ export default function DownloadInfo() {
 						<p className="text-lg h-fit my-auto">by {song.author}</p>
 						<BsRecordFill
 							className={`${
-								song.download.trim() == ""
-									? "text-gray-600"
+								installedSongs[i]
+									? "text-green-600"
 									: "text-red-500"
 							} h-6 w-6 ml-auto mr-2 rounded-full my-auto`}
 						/>

@@ -6,6 +6,9 @@ import path from 'path';
 import {jsonrepair} from 'jsonrepair';
 import log from "electron-log";
 import Config from "./config";
+import {app} from "electron";
+
+const isProd = process.env.NODE_ENV === 'production';
 
 export default class FileParser {
 	async GetAllPacks() {
@@ -76,6 +79,27 @@ export default class FileParser {
 		});
 	}
 
+	async ClearTempFolder() {
+		await fs.rm(path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI"), {recursive: true, force: true});
+	}
+	
+	async GetCacheFromPack(packPath: string): Promise<any> {
+		return new Promise<any>(async (resolve, reject) => {
+			
+			const cachePath = path.join(packPath, "PackUI.cache")
+			
+			if (!fss.existsSync(cachePath)) {
+				log.warn(`Path ${packPath} does not exist`);
+				resolve([]);
+				return;
+			}
+			
+			const cache = await fs.readFile(cachePath)
+			
+			resolve(JSON.parse(cache.toString()))
+		});
+	}
+	
 	async GetAllSongs(pathToScan?: string) {
 
 		const customSongsPath = new Config().customSongsFolder

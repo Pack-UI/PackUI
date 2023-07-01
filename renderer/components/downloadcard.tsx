@@ -11,6 +11,8 @@ export default function DownloadCard(props: Props) {
 	const pack = props.pack;
 	const date = new Date(Number(pack.creationDate) * 1000);
 
+	console.log(pack.coverImagePath)
+	
 	return <a href={`/download/info?id=${props.index}`}>
 		<div className="w-full h-64 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20 mb-2">
 			<div className="h-full w-52 float-left pt-2">
@@ -18,7 +20,7 @@ export default function DownloadCard(props: Props) {
 					<Image
 						src={
 							pack.coverImagePath
-								? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+								? pack.coverImagePath
 								: '/logo.png'
 						}
 						alt={`${pack.title} Cover`}

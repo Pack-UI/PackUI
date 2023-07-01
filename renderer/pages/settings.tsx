@@ -1,20 +1,9 @@
 import { ipcRenderer, OpenDialogReturnValue } from 'electron';
 import {WithContext as ReactTags} from 'react-tag-input';
 import {useState} from "react";
-import {GetAPISourceTags, SetConfigField} from "../tools/communicationHelper";
+import {GetAPISourceTags, SetConfigField, ClearTempFolder} from "../tools/communicationHelper";
 
 const delimiters = [9, 13, 188]; // Keycodes for tab (\t), enter (\n) and comma (,)
-
-function SetCustomSongsFolder() {
-	if (ipcRenderer) {
-		ipcRenderer.invoke('utils.ShowOpenDialog', { properties: ['openDirectory', 'createDirectory', 'promptToCreate', 'dontAddToRecent'], message: 'Select ADOFAI Custom Songs folder'}).then((result: OpenDialogReturnValue) => {
-			if (!result.canceled) {
-				ipcRenderer.send('config.Set', {key: 'customSongsFolder', value: result.filePaths[0]})
-				alert("Updated custom songs folder to " + result.filePaths[0])
-			}
-		})
-	}
-}
 
 export default function Settings() {
 	const [tags, setTags] = useState<object[]>([])
@@ -23,6 +12,17 @@ export default function Settings() {
 
 	if (ipcRenderer) {
 		if (tags.length === 0 && !fetchedSourceTags) GetAPISourceTags(ipcRenderer).then(_ => { setTags(_); fetchedSourceTags = true; });
+	}
+
+	function SetCustomSongsFolder() {
+		if (ipcRenderer) {
+			ipcRenderer.invoke('utils.ShowOpenDialog', { properties: ['openDirectory', 'createDirectory', 'promptToCreate', 'dontAddToRecent'], message: 'Select ADOFAI Custom Songs folder'}).then((result: OpenDialogReturnValue) => {
+				if (!result.canceled) {
+					ipcRenderer.send('config.Set', {key: 'customSongsFolder', value: result.filePaths[0]})
+					alert("Updated custom songs folder to " + result.filePaths[0])
+				}
+			})
+		}
 	}
 	
 	const handleDelete = i => {
@@ -45,7 +45,7 @@ export default function Settings() {
 		<div className="m-2 mt-4 text-lg">
 			
 			{/* Custom song folder */}
-			<div className="flex gap-2">
+			<div className="flex gap-2 my-2">
 				<label className="py-1">Custom songs folder</label>
 				<input
 					type="button"
@@ -55,8 +55,19 @@ export default function Settings() {
 				/>
 			</div>
 
+			{/* Clear download cache */}
+			<div className="flex gap-2 my-2">
+				<label className="py-1">Clear download cache</label>
+				<input
+					type="button"
+					value="Clear"
+					onClick={() => ClearTempFolder(ipcRenderer)}
+					className="rounded-lg bg-gray-700 hover:bg-gray-800 px-2 py-1 cursor-pointer"
+				/>
+			</div>
+
 			{/* APIs */}
-			<div className="flex gap-2 mt-4">
+			<div className="flex gap-2 my-2">
 				<label className="py-1">Pack download APIs</label>
 				<ReactTags
 					tags={tags}

@@ -30,7 +30,7 @@ const messages = [
     "Oopsie! Our Code Discovered a Portal to the Upside Down",
     "Who Let the Bugs Out? Woof! Woof! Woof!",
     "Oopsie Woopsie! A Wittle Error Sneaked In",
-    "Error 404: Senpai Not Found, uwu",
+    "Error 404: Senpai Not Found",
     "Cwitical Error Detected! Pwease Send Hugs and Cookies",
     "UwUwUwUw... Our Code Got a Bit Too Cutesy",
     "Nyaa~ An Unexpected Pawblem in the Code!",
