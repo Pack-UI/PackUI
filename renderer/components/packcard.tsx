@@ -1,6 +1,7 @@
 import Image from "next/image";
 import {BsFire, BsHash} from "react-icons/bs";
 import Pack from "@classes/pack";
+import Translator from "@tools/translator";
 
 interface Props {
 	pack: Pack;
@@ -10,7 +11,7 @@ export default function PackCard(props: Props) {
 	const pack = props.pack;
 
 	pack.title = pack.title.replace(/<\/?[^>]+(>|$)/g, "");
-	
+
 	return <div className="w-full h-32 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20">
 		<div className="h-full w-32 float-left pt-2">
 			<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-24 w-24">
@@ -40,7 +41,7 @@ export default function PackCard(props: Props) {
 					<div
 						className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-							Difficulty
+							<Translator translation="info.difficulty" />
 						</p>
 					</div>
 				</div>
@@ -50,7 +51,7 @@ export default function PackCard(props: Props) {
 					<div
 						className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-							Songs
+							<Translator translation="info.songs" />
 						</p>
 					</div>
 				</div>

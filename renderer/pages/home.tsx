@@ -1,13 +1,12 @@
-"use client";
-
 import {useState} from "react";
 import Image from "next/image";
 import MapCard from "@components/mapcard";
 import PackCard from "@components/packcard";
 import * as electron from "electron";
-import {GetAllPacks, GetAllSongs} from "../tools/communicationHelper";
+import {GetAllPacks, GetAllSongs} from "@tools/communicationHelper";
 import Song from "@classes/song";
 import Pack from "@classes/pack";
+import Translator from "@tools/translator";
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);
@@ -22,7 +21,7 @@ export default function Home() {
 	return <div className=" text-white flex gap-4 w-full h-[90vh] p-8">
 		<div
 			className="border-white w-full h-full border-2 rounded-lg p-8 items-center justify-center text-center overflow-y-scroll scrollbar-pill">
-			<h1 className="mb-2">Maps</h1>
+			<h1 className="mb-2"><Translator translation="home.maps" /></h1>
 			<hr/>
 			<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
 				{songs ? songs.map((song, i) => <MapCard key={i} song={song}/>) : <Image
@@ -35,7 +34,7 @@ export default function Home() {
 			</div>
 		</div>
 		<div className="border-white w-full h-full border-2 rounded-lg p-8  items-center justify-center text-center">
-			<h1 className="mb-2">Packs</h1>
+			<h1 className="mb-2"><Translator translation="home.packs" /></h1>
 			<hr/>
 			<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
 				{packs ? packs.map((pack, i) => <PackCard key={i} pack={pack}/>) : <Image

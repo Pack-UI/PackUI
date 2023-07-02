@@ -20,10 +20,18 @@
     "jsx": "preserve",
     "baseUrl": "./",
     "paths": {
-      "@components/*": ["renderer/components/*"],
-      "@classes/*": ["main/classes/*"],
-      "@helpers/*": ["main/helpers/*"],
-      "@tools/*": ["renderer/tools/*"]
+      "@components/*": [
+        "renderer/components/*"
+      ],
+      "@classes/*": [
+        "main/classes/*"
+      ],
+      "@helpers/*": [
+        "main/helpers/*"
+      ],
+      "@tools/*": [
+        "renderer/tools/*"
+      ]
     }
   },
   "exclude": [

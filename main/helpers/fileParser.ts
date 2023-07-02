@@ -12,16 +12,16 @@ const isProd = process.env.NODE_ENV === 'production';
 
 export default class FileParser {
 	async GetAllPacks() {
-		const customSongsPath = new Config().customSongsFolder
-		
+		const customSongsPath = new Config().customSongsFolder;
+
 		if (!fss.existsSync(customSongsPath)) {
 			log.error(`Path ${customSongsPath} does not exist`);
 			return new Promise<Pack[]>(resolve => resolve([]))
 		}
-		
+
 		return new Promise<Pack[]>(async (resolve, _) => {
 
-			log.info("Loading packs in " + customSongsPath)
+			log.info("Loading packs in " + customSongsPath);
 
 			let packs: Pack[] = [];
 
@@ -82,36 +82,36 @@ export default class FileParser {
 	async ClearTempFolder() {
 		await fs.rm(path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI"), {recursive: true, force: true});
 	}
-	
-	async GetCacheFromPack(packPath: string): Promise<any> {
+
+	async GetCacheFromPack(packPath: string) {
 		return new Promise<any>(async (resolve, reject) => {
-			
-			const cachePath = path.join(packPath, "PackUI.cache")
-			
+
+			const cachePath = path.join(packPath, "PackUI.cache");
+
 			if (!fss.existsSync(cachePath)) {
 				log.warn(`Path ${packPath} does not exist`);
 				resolve([]);
 				return;
 			}
-			
-			const cache = await fs.readFile(cachePath)
-			
+
+			const cache = await fs.readFile(cachePath);
+
 			resolve(JSON.parse(cache.toString()))
 		});
 	}
-	
+
 	async GetAllSongs(pathToScan?: string) {
 
-		const customSongsPath = new Config().customSongsFolder
-		
+		const customSongsPath = new Config().customSongsFolder;
+
 		const rootPath = pathToScan ? pathToScan : customSongsPath;
 
 		if (!fss.existsSync(customSongsPath)) {
 			log.error(`Path ${rootPath} does not exist`);
 			return new Promise<Song[]>(resolve => resolve([]))
 		}
-		
-		log.info("Loading songs in " + rootPath)
+
+		log.info("Loading songs in " + rootPath);
 
 		return new Promise<Song[]>(async (resolve, _) => {
 			let songs: Song[] = [];
@@ -147,7 +147,7 @@ export default class FileParser {
 						path.join(folderPath, adofaiData['settings']['previewImage'])
 					);
 
-					const tiles: number = (typeof (adofaiData.pathData) === 'string') ? String(adofaiData.pathData).length : adofaiData.angleData.length;
+					const tiles: number = typeof (adofaiData.pathData) === 'string' ? String(adofaiData.pathData).length : adofaiData.angleData.length;
 
 					songs.push(
 						new Song(

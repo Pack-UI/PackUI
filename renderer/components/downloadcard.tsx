@@ -1,6 +1,7 @@
 import Image from "next/image";
 import {BsDownload, BsFire, BsHash} from "react-icons/bs";
 import Pack from "@classes/pack";
+import Translator from "@tools/translator";
 
 interface Props {
 	pack: Pack;
@@ -11,8 +12,8 @@ export default function DownloadCard(props: Props) {
 	const pack = props.pack;
 	const date = new Date(Number(pack.creationDate) * 1000);
 
-	console.log(pack.coverImagePath)
-	
+	console.log(pack.coverImagePath);
+
 	return <a href={`/download/info?id=${props.index}`}>
 		<div className="w-full h-64 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20 mb-2">
 			<div className="h-full w-52 float-left pt-2">
@@ -50,7 +51,7 @@ export default function DownloadCard(props: Props) {
 						<div
 							className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 							<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-								Difficulty
+								<Translator translation="info.difficulty" />
 							</p>
 						</div>
 					</div>
@@ -60,7 +61,7 @@ export default function DownloadCard(props: Props) {
 						<div
 							className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 							<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-								Songs
+								<Translator translation="info.songs" />
 							</p>
 						</div>
 					</div>

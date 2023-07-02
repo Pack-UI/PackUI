@@ -11,26 +11,23 @@ async function GetAllPacks(ipcRenderer: IpcRenderer): Promise<Pack[]> {
 }
 
 function SetConfigField(ipcRenderer: IpcRenderer, key: string, value: any) {
-	ipcRenderer.send('config.Set', { key: key, value: value });
+	ipcRenderer.send('config.Set', {key, value});
 }
 
 function ClearTempFolder(ipcRenderer: IpcRenderer) {
 	ipcRenderer.send('fileParser.ClearTempFolder');
 }
 
-async function GetAPISourceTags(ipcRenderer: IpcRenderer): Promise<object[]> {
-	return new Promise<object[]>((resolve, reject) => {
+async function GetAPISourceTags(ipcRenderer: IpcRenderer) {
+	return new Promise<object[]>((resolve, reject) =>
 		ipcRenderer.invoke('config.Read', "sources").then((data: string[]) => {
 			let tags: object[] = [];
-			data.forEach(source => {
-				tags.push({ id: source, text: source })
-			})
+			data.forEach(source => tags.push({id: source, text: source}));
 			resolve(tags);
-		})
-	})
+		}))
 }
 
-async function VerifyPackIntegrity(ipcRenderer: IpcRenderer, pack: Pack): Promise<number>{
+async function VerifyPackIntegrity(ipcRenderer: IpcRenderer, pack: Pack): Promise<number> {
 	return ipcRenderer.invoke('packManager.VerifyPackIntegrity', pack)
 }
 

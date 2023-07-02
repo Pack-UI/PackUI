@@ -1,5 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/thijnmens/PackUI/main/schemas/PackUI.config.schema.json",
   "customSongsFolder": "C:\\SteamLibrary\\steamapps\\common\\A Dance of Fire and Ice\\CustomSongs",
-  "sources": ["https://be.t21c.kro.kr/packui", "https://cdn.packui.net/api/example"]
+  "sources": [
+    "https://be.t21c.kro.kr/packui",
+    "https://cdn.packui.net/api/example"
+  ],
+  "language": "en_US"
 }

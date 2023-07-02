@@ -2,35 +2,33 @@ import {useRef, useState} from "react";
 import {BsFire, BsHash, BsRecordFill} from "react-icons/bs";
 import Image from "next/image";
 import Popup from "reactjs-popup";
-import { useRouter } from "next/router"
+import {useRouter} from "next/router"
 import {PopupActions} from "reactjs-popup/dist/types";
 import ProgressPopup from "@components/progress";
 import Pack from "@classes/pack";
 import {ipcRenderer} from "electron";
 import {AiOutlineArrowLeft} from "react-icons/ai";
 import {VerifyPackIntegrity} from "@tools/communicationHelper";
-import path from "path";
-import Config from "@helpers/config";
-import ProgressBar from "@ramonak/react-progress-bar";
+import Translator from "@tools/translator";
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
-	let [installedSongs, setInstalledSongs] = useState<boolean[] | null>(null)
+	let [installedSongs, setInstalledSongs] = useState<boolean[] | null>(null);
 	let [count, setCount] = useState<number>(0);
 	let indeterminateCheckbox = useRef<HTMLInputElement | null>(null);
 	let progress = useRef<PopupActions | null>(null);
 	let integrity = useRef<PopupActions | null>(null);
 
 	let checkboxRefs: HTMLInputElement[] = [];
-	
+
 	let setRef = (ref: HTMLInputElement) => {
 		checkboxRefs.push(ref);
 		if (checkboxRefs.length === installedSongs.length) {
-			
-			installedSongs.forEach((installed, index) => checkboxRefs[index].checked = installed)
-			
-			const installedSongAmount = installedSongs.filter(e => e).length
-			
+
+			installedSongs.forEach((installed, index) => checkboxRefs[index].checked = installed);
+
+			const installedSongAmount = installedSongs.filter(e => e).length;
+
 			if (installedSongAmount === checkboxRefs.length) {
 				indeterminateCheckbox.current.checked = true;
 				indeterminateCheckbox.current.indeterminate = false;
@@ -51,23 +49,26 @@ export default function DownloadInfo() {
 			.then(cache => setInstalledSongs(pack.songs.map((song, index) => cache.filter(e => e.name == song.title).length != 0)))
 			.catch(() => installedSongs = new Array<boolean>(pack.songs.length))
 	}
-	
+
 	async function Sync() {
 		let download: boolean[] = [];
 		checkboxRefs.forEach(checkbox => download.push(checkbox.checked));
 		setCount(download.filter(e => e).length);
 
 		progress.current?.open();
-		
+
 		function wait() {
 			return new Promise(resolve => setTimeout(resolve, 1000));
 		}
-		
+
 		if (ipcRenderer) {
-			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download: download}).then(async () => {await wait(); progress.current?.close();});
+			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download}).then(async () => {
+				await wait();
+				progress.current?.close();
+			});
 		}
 	}
-	
+
 	function ReloadPage() {
 		router.reload();
 	}
@@ -83,7 +84,7 @@ export default function DownloadInfo() {
 			/>
 		</div>;
 	}
-	
+
 
 	return <div className="mx-16 mt-16 mb-24 text-white relative">
 		<Popup ref={progress} position="left center" onClose={ReloadPage}>
@@ -92,18 +93,18 @@ export default function DownloadInfo() {
 		<Popup ref={integrity} position="left center">
 			<div className="w-screen h-screen bg-black bg-opacity-50 text-white">
 				<div className="w-1/2 h-1/3 absolute top-1/3 left-1/4 bg-gray-900 bg-opacity-100 rounded-lg shadow-2xl">
-					<h1>X Songs failed</h1>
+					<h1><Translator translation="info.failedSongs" /></h1>
 				</div>
 			</div>
 		</Popup>
 		<div className="flex rounded-lg bg-white bg-opacity-5 p-2 h-64">
 			<div className="absolute top-2 right-2 z-10">
-				<a href="/download" >
-					<AiOutlineArrowLeft className="h-6 w-6 mx-auto" aria-hidden="true" />
+				<a href="/download">
+					<AiOutlineArrowLeft className="h-6 w-6 mx-auto" aria-hidden="true"/>
 				</a>
 			</div>
 			<div className="h-full w-52 float-left pt-2">
-				
+
 				<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-52 w-52">
 					<Image
 						src={
@@ -139,7 +140,7 @@ export default function DownloadInfo() {
 							<div
 								className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 								<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-									Difficulty
+									<Translator translation="info.difficulty" />
 								</p>
 							</div>
 						</div>
@@ -149,7 +150,7 @@ export default function DownloadInfo() {
 							<div
 								className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
 								<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">
-									Songs
+									<Translator translation="info.songs" />
 								</p>
 							</div>
 						</div>
@@ -160,7 +161,7 @@ export default function DownloadInfo() {
 							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
 							onClick={() => Sync()}
 						>
-							Sync selected
+							<Translator translation="info.syncSelected" />
 						</button>
 						<button
 							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
@@ -172,18 +173,18 @@ export default function DownloadInfo() {
 									checkboxRefs.forEach((ref, i) => {
 										checkboxRefs[i].checked = true;
 									});
-									
+
 									Sync();
 								}
 							}}
 						>
-							(Re)download all
+							<Translator translation="info.downloadAll" />
 						</button>
 						<button
 							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
 							onClick={() => VerifyPackIntegrity(ipcRenderer, pack)}
 						>
-							Verify Pack Integrity
+							<Translator translation="info.verifyIntegrity" />
 						</button>
 					</div>
 				</div>
@@ -248,7 +249,7 @@ export default function DownloadInfo() {
 						<h1 className="font-bold text-xl h-fit my-auto">
 							{song.title}
 						</h1>
-						<p className="text-lg h-fit my-auto">by {song.author}</p>
+						<p className="text-lg h-fit my-auto"><Translator translation="info.madeBy" /> {song.author}</p>
 						<BsRecordFill
 							className={`${
 								installedSongs[i]

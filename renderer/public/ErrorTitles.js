@@ -1,4 +1,3 @@
-
 const messages = [
     "Oopsie Daisies! Gremlins Invaded Our System",
     "Error 404: Hilarity Not Found",
@@ -45,6 +44,4 @@ const messages = [
     "UwU Alert! Our Code Is Having a Nya-Nya Moment"
 ];
 
-export const GetErrorMessage = () => {
-    return messages[Math.floor(Math.random() * messages.length)];
-}
+export const GetErrorMessage = () => messages[Math.floor(Math.random() * messages.length)];

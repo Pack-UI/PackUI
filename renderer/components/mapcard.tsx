@@ -3,6 +3,7 @@ import {IoIosSpeedometer} from 'react-icons/io';
 import {TbRectangle} from 'react-icons/tb';
 import {BsFire} from 'react-icons/bs';
 import Song from '@classes/song';
+import Translator from "@tools/translator";
 
 interface Props {
 	song: Song;
@@ -41,7 +42,7 @@ export default function MapCard(props: Props) {
 					<p>{song.difficulty}</p>
 					<div
 						className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
-						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">Difficulty</p>
+						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2"><Translator translation="info.difficulty" /></p>
 					</div>
 				</div>
 				<div className="group relative">
@@ -49,7 +50,7 @@ export default function MapCard(props: Props) {
 					<p>{song.tiles}</p>
 					<div
 						className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
-						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">Tiles</p>
+						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2"><Translator translation="info.tiles" /></p>
 					</div>
 				</div>
 				<div className="group relative">
@@ -57,7 +58,7 @@ export default function MapCard(props: Props) {
 					<p>{song.bpm}</p>
 					<div
 						className="absolute opacity-0 group-hover:opacity-100 -bottom-6 w-full transition-all duration-300 ease-in-out group-hover:delay-300">
-						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2">BPM</p>
+						<p className="bg-[#070707] rounded-lg mx-auto w-fit px-2"><Translator translation="info.bpm" /></p>
 					</div>
 				</div>
 			</div>

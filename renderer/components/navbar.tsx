@@ -2,12 +2,13 @@ import {Fragment} from 'react'
 import {Disclosure, Menu, Transition} from '@headlessui/react'
 import {Bars3Icon, BellIcon, XMarkIcon} from '@heroicons/react/24/outline'
 import {useRouter} from "next/router";
+import Translator from "@tools/translator";
 
 const navigation = [
-	{name: 'Dashboard', href: '/home', current: true},
-	{name: 'Editor', href: '/editor', current: false},
-	{name: 'Download', href: '/download', current: false},
-	{name: 'Settings', href: '/settings', current: false},
+	{name: 'navbar.dashboard', href: '/home', current: true},
+	{name: 'navbar.editor', href: '/editor', current: false},
+	{name: 'navbar.download', href: '/download', current: false},
+	{name: 'navbar.settings', href: '/settings', current: false},
 ];
 
 function classNames(...classes) {
@@ -21,10 +22,10 @@ function ChangeCurrentPage(href: string) {
 }
 
 export default function Example() {
-	
-	const currentPage = useRouter().asPath
-	ChangeCurrentPage(currentPage)
-	
+
+	const currentPage = useRouter().asPath;
+	ChangeCurrentPage(currentPage);
+
 	return <Disclosure as="nav" className="bg-gray-800">
 		{({open}) => <>
 			<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -63,7 +64,7 @@ export default function Example() {
 									aria-current={item.current ? 'page' : undefined}
 									onClick={() => ChangeCurrentPage(currentPage)}
 								>
-									{item.name}
+									<Translator translation={item.name} />
 								</a>)}
 							</div>
 						</div>

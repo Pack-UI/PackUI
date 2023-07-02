@@ -2,7 +2,7 @@ import * as fss from 'fs'
 import path from "path";
 import log from "electron-log";
 import {app} from "electron";
-import loadConfig from "tailwindcss/loadConfig";
+import Translator from "./Translator";
 
 const isProd = process.env.NODE_ENV === 'production';
 let configPath: string;
@@ -10,7 +10,8 @@ let configPath: string;
 export default class Config {
 	customSongsFolder: string;
 	sources: string[];
-	
+	language: string;
+
 	constructor() {
 		configPath = path.join(app.getPath('userData'), "PackUI.config.json");
 		this.LoadConfig();
@@ -33,10 +34,11 @@ export default class Config {
 	private ReadConfig(path: string): Config {
 		return JSON.parse(fss.readFileSync(path, 'utf-8'))
 	}
-	
+
 	private LoadConfig() {
 		const config = this.ReadConfig(configPath);
 		this.customSongsFolder = config.customSongsFolder;
 		this.sources = config.sources;
+		this.language = config.language;
 	}
 }
