@@ -14,7 +14,13 @@
     "build:linux": "nextron build --linux",
     "postinstall": "electron-builder install-app-deps"
   },
-  "dependencies": {},
+  "dependencies": {
+    "got": "11.8.5",
+    "http-cache-semantics": "4.1.1",
+    "minimatch": "3.0.5",
+    "semver": "7.5.2",
+    "webpack": "5.76.0"
+  },
   "devDependencies": {
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
