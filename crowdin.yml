@@ -1,0 +1,3 @@
+files:
+  - source: languages/*.lang
+    translation: '%locale_with_underscore%.lang'
