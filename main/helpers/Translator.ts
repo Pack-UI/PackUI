@@ -11,7 +11,7 @@ export default class Translator {
 	
 	constructor() {
 		const lang = new Config().language
-		const langPath = path.join(app.getPath('userData'), `/languages/${lang}.lang`)
+		const langPath = path.join(app.getPath('userData'), `/languages/${lang}.json`)
 
 		if (!fss.existsSync(langPath)) {
 			Logger.error(`Unknown language: "${lang}"`);
