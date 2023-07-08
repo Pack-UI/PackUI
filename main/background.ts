@@ -24,15 +24,15 @@ log.transports.file.resolvePathFn = () => path.join(app.getPath('logs'), new Dat
 // Error handler
 log.errorHandler.startCatching();
 
-// Copy language files in dev
-!isProd ? new Translator().CopyTranslations() : undefined;
-
 // Create config if it doesn't exist
 const configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
 
 if (!fss.existsSync(configPath)) {
 	fss.writeFileSync(configPath, JSON.stringify(configTemplate), "utf-8")
 }
+
+// Copy language files
+new Translator().CopyTranslations(isProd);
 
 // Create temp folder if it doesn't exist
 const tempPath =  path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI");

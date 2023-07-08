@@ -10,6 +10,7 @@ import {ipcRenderer} from "electron";
 import {AiOutlineArrowLeft} from "react-icons/ai";
 import {VerifyPackIntegrity} from "@tools/communicationHelper";
 import Translator from "@tools/translator";
+import Link from "next/link";
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
@@ -101,9 +102,9 @@ export default function DownloadInfo() {
 		</Popup>
 		<div className="flex rounded-lg bg-white bg-opacity-5 p-2 h-64">
 			<div className="absolute top-2 right-2 z-10">
-				<a href="/download">
+				<Link href="/download">
 					<AiOutlineArrowLeft className="h-6 w-6 mx-auto" aria-hidden="true"/>
-				</a>
+				</Link>
 			</div>
 			<div className="h-full w-52 float-left pt-2">
 

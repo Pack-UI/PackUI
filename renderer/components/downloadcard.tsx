@@ -7,6 +7,7 @@ import ProgressPopup from "@components/progress";
 import Popup from "reactjs-popup";
 import {useRef, useState} from "react";
 import {PopupActions} from "reactjs-popup/dist/types";
+import Link from "next/link";
 
 interface Props {
 	pack: Pack;
@@ -38,7 +39,7 @@ export default function DownloadCard(props: Props) {
 		<ProgressPopup count={pack.songs.length}></ProgressPopup>
 	</Popup>
 	<div className="relative">
-		<a href={`/download/info?id=${props.index}`}>
+		<Link href={`/download/info?id=${props.index}`}>
 			<div className="w-full h-64 align-middle flex bg-white bg-opacity-5 p-2 rounded-2xl hover:bg-opacity-20 mb-2">
 				<div className="h-full w-52 float-left pt-2">
 					<div className="shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] rounded-lg h-52 w-52">
@@ -92,7 +93,7 @@ export default function DownloadCard(props: Props) {
 					</div>
 				</div>			
 			</div>
-		</a>
+		</Link>
 		<div className="absolute right-2 top-2">
 			<button onClick={DownloadPack}>
 				<BsDownload

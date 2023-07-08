@@ -2,18 +2,18 @@ import {useState} from "react";
 import Image from "next/image";
 import MapCard from "@components/mapcard";
 import PackCard from "@components/packcard";
-import * as electron from "electron";
 import {GetAllPacks, GetAllSongs} from "@tools/communicationHelper";
 import Song from "@classes/song";
 import Pack from "@classes/pack";
 import Translator from "@tools/translator";
 import {BsPlus} from "react-icons/bs";
+import Link from "next/link";
+import {ipcRenderer} from "electron";
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);
 	let [packs, setPacks] = useState<Pack[] | null>(null);
-
-	const ipcRenderer = electron.ipcRenderer || false;
+	
 	if (ipcRenderer) {
 		if (songs == null) GetAllSongs(ipcRenderer).then(_ => setSongs(_));
 		if (packs == null) GetAllPacks(ipcRenderer).then(_ => setPacks(_));
@@ -47,10 +47,10 @@ export default function Home() {
 				/>}
 			</div>
 		</div>
-		<a href="/editor/new">
+		<Link href="/editor/new">
 			<div className="absolute right-4 bottom-4 bg-green-600 rounded-full w-14 h-14 flex justify-center items-center cursor-pointer">
 				<BsPlus className="w-12 h-12" aria-hidden="true" />
 			</div>
-		</a>
+		</Link>
 	</div>;
 }

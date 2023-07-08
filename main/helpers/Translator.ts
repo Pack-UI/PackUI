@@ -22,6 +22,9 @@ export default class Translator {
 	}
 	
 	async GetTranslation(id: string): Promise<string> {
+		if (Object.keys(this.translations).length == 0) {
+			await this.ReloadTranslations();
+		}
 		return new Promise<string>(async (resolve) => {			
 			this.translations[id] ? resolve(this.translations[id]) : resolve(`Unknown id: "${id}"`);
 		});
@@ -31,8 +34,12 @@ export default class Translator {
 		return fs.readdir(path.join(app.getPath('userData'), 'languages'))
 	}
 
-	async CopyTranslations() {
-		await fs.cp(path.join(__dirname, '../languages'), path.join(app.getPath('userData'), 'languages'), { recursive: true })
+	async CopyTranslations(isProd: boolean) {
+		if (isProd) {
+			await fs.cp(path.join(__dirname, '../../../languages'), path.join(app.getPath('userData'), 'languages'), { recursive: true})
+		} else {
+			await fs.cp(path.join(__dirname, '../languages'), path.join(app.getPath('userData'), 'languages'), { recursive: true})
+		}
 	}
 	
 	async ReloadTranslations() {

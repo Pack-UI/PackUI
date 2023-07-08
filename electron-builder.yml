@@ -9,4 +9,7 @@ files:
     filter:
       - package.json
       - app
+extraFiles:
+  - from: .
+    filter: languages
 publish: null

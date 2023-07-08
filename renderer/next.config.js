@@ -8,5 +8,6 @@ module.exports = {
     },
     images: {
         domains: ['localhost', 'cdn.packui.net', 'media.tenor.com', 'i.imgur.com'],
+        unoptimized: true
     }
 };
