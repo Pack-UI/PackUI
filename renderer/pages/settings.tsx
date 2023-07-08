@@ -94,7 +94,7 @@ export default function Settings() {
 				<input
 					type="button"
 					value={Translator("settings.clearDownloadCache.button")}
-					onClick={() => ClearTempFolder(ipcRenderer)}
+					onClick={() => { ClearTempFolder(ipcRenderer); alert("Cleared cache!"); }}
 					className="rounded-lg bg-gray-700 hover:bg-gray-800 px-2 py-1 cursor-pointer col-span-3"
 				/>
 			</div>

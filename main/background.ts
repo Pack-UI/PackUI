@@ -34,6 +34,13 @@ if (!fss.existsSync(configPath)) {
 	fss.writeFileSync(configPath, JSON.stringify(configTemplate), "utf-8")
 }
 
+// Create temp folder if it doesn't exist
+const tempPath =  path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI");
+
+if (!fss.existsSync(tempPath)) {
+	fss.mkdirSync(tempPath);
+}
+
 // Create communication channels
 CommunicationHandler();
 

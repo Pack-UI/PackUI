@@ -44,13 +44,13 @@ export default function DownloadInfo() {
 	const date = new Date(Number(pack?.creationDate) * 1000);
 
 	if (ipcRenderer) {
-		if (pack == null) ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => _ == undefined ? console.error('Index out of range, this should not happen') : setPack(_));
+		if (pack == null) ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => _ == undefined ? undefined : setPack(_));
 		if (installedSongs == null && pack != null) ipcRenderer.invoke('fileParser.GetCacheFromPack', pack)
-			.then(cache => setInstalledSongs(pack.songs.map((song, index) => cache.filter(e => e.name == song.title).length != 0)))
+			.then(cache => setInstalledSongs(pack.songs.map((song) => cache.filter(e => e.name == song.title).length != 0)))
 			.catch(() => installedSongs = new Array<boolean>(pack.songs.length))
 	}
 
-	async function Sync() {
+	function Sync() {
 		let download: boolean[] = [];
 		checkboxRefs.forEach(checkbox => download.push(checkbox.checked));
 		setCount(download.filter(e => e).length);
@@ -62,7 +62,7 @@ export default function DownloadInfo() {
 		}
 
 		if (ipcRenderer) {
-			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download}).then(async () => {
+			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download: download}).then(async () => {
 				await wait();
 				progress.current?.close();
 			});
@@ -156,15 +156,15 @@ export default function DownloadInfo() {
 						</div>
 					</div>
 					<hr className="ml-12 mr-4 px-4 mt-2 opacity-25"/>
-					<div>
+					<div className="flex mx-16 mt-4 mb-2 gap-16">
 						<button
-							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+							className="p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
 							onClick={() => Sync()}
 						>
 							<Translator translation="info.syncSelected" />
 						</button>
 						<button
-							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+							className="p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
 							onClick={() => {
 								if (indeterminateCheckbox.current) {
 									indeterminateCheckbox.current.indeterminate = false;
@@ -181,7 +181,7 @@ export default function DownloadInfo() {
 							<Translator translation="info.downloadAll" />
 						</button>
 						<button
-							className="ml-16 mt-4 mb-2 p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
+							className="p-2 rounded-t-lg bg-white bg-opacity-0 hover:bg-opacity-10 border-white border-opacity-10 border-b-4 hover:scale-105 transition-transform duration-100 ease-in-out"
 							onClick={() => VerifyPackIntegrity(ipcRenderer, pack)}
 						>
 							<Translator translation="info.verifyIntegrity" />
