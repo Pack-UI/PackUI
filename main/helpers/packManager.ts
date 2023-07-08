@@ -19,25 +19,32 @@ const downloadSchema = require('../../schemas/PackUI.download.schema.json');
 const isProd = process.env.NODE_ENV === 'production';
 
 export default class PackManager {
-	sources: string[];
-	packs: Pack[];
+	sources: string[] = [];
+	packs: Pack[] = [];
+	lastSources: string[] = [];
 
 	constructor() {
 		this.sources = new Config().sources;
+		this.lastSources = this.sources;
 	}
 
 	GetPackAtIndex(index: number) {
 		return this.packs.length > index ? this.packs[index] : undefined;
 	}
 
-	async GetDownloadablePacks() {
-
+	async GetDownloadablePacks(forceRefresh: boolean = false) {
+		
+		// Check if packs have not changed
+		if (this.packs.length == this.sources.length && this.lastSources == this.sources && !forceRefresh) {
+			return this.packs;
+		}
+		
 		let packs: Pack[] = [];
 
 		return new Promise<Pack[]>(async resolve => {
 
 			await Promise.all(new Config().sources.map(async url => {
-
+				
 				const resp = await fetch(url);
 
 				if (!resp.ok) {
@@ -47,9 +54,7 @@ export default class PackManager {
 
 				const packData = await resp.json();
 
-				const v = new Validator();
-
-				if (!v.validate(packData, downloadSchema).valid) {
+				if (!new Validator().validate(packData, downloadSchema).valid) {
 					log.warn(`Response from "${url}" did not pass validation, please contact the respective developer`)
 				}
 

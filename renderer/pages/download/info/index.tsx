@@ -214,9 +214,6 @@ export default function DownloadInfo() {
 			</div>
 			<div className="grid grid-flow-row grid-cols-1 border-2 p-2 border-white rounded-lg border-opacity-10">
 				{pack.songs.map((song, i) => {
-					if (song.download.trim() == "") {
-						console.log(song.title);
-					}
 					return <div
 						key={i}
 						id={i.toString()}

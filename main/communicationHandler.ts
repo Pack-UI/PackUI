@@ -12,7 +12,7 @@ export default function communicationHandler() {
 	/* FileParser */
 	const fileParser = new FileParser();
 
-	ipcMain.handle('fileParser.GetAllSongs', (event, _) => fileParser.GetAllSongs());
+	ipcMain.handle('fileParser.GetAllSongs', (event, data: boolean = false) => fileParser.GetAllSongs(null, data));
 	ipcMain.handle('fileParser.GetAllPacks', (event, _) => fileParser.GetAllPacks());
 	ipcMain.handle('fileParser.GetCacheFromPack', (event, data: Pack | string) => {
 		if (typeof data == 'string') {
@@ -33,7 +33,7 @@ export default function communicationHandler() {
 	/* Pack Manager */
 	const packManager = new PackManager();
 
-	ipcMain.handle('packManager.GetDownloadablePacks', (event, _) => packManager.GetDownloadablePacks());
+	ipcMain.handle('packManager.GetDownloadablePacks', (event, data: boolean = false) => packManager.GetDownloadablePacks(data));
 	ipcMain.handle('packManager.GetPackAtIndex', (event, data: number) => packManager.GetPackAtIndex(data));
 	ipcMain.handle('packManager.SyncPack', (event, data: any) => packManager.DownloadSongsFromPack(data.index, data.download));
 	ipcMain.handle('packManager.DownloadSongsFromPack', (event, data: any) => packManager.DownloadSongsFromPack(data.index, data.download, true));
