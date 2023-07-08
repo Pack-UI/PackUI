@@ -9,7 +9,7 @@
 	"settings.title": "Настройки",
 	"settings.language.label": "Язык",
 	"settings.customSongsFolder.label": "Папка для пользовательских карт",
-	"settings.customSongsFolder.button": "Выберите папку",
+	"settings.customSongsFolder.button": "Выбрать папку",
 	"settings.clearDownloadCache.label": "Очистить кэш загрузок",
 	"settings.clearDownloadCache.button": "Очистить",
 	"settings.packDownloadApis.label": "API для скачивания наборов",
@@ -30,11 +30,11 @@
 	"info.difficulty": "Сложность",
 	"info.tiles": "Плитки",
 	"info.bpm": "BPM",
-	"info.songs": "Песни",
+	"info.songs": "Карты",
 	"info.syncSelected": "Синхронизировать выбранное",
 	"info.downloadAll": "Скачать всё",
-	"info.verifyIntegrity": "Проверить целостность набора",
+	"info.verifyIntegrity": "Проверить целостность",
 	"info.madeBy": "От",
-	"progress.installedCount": "Установлено %1$s из %2$s песен",
+	"progress.installedCount": "Скачано %1$s из %2$s Карт",
 	"error.close": "Нажмите в любом месте, чтобы закрыть..."
 }
