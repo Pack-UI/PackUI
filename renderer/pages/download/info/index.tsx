@@ -50,9 +50,11 @@ export default function DownloadInfo() {
 			.catch(() => installedSongs = new Array<boolean>(pack.songs.length))
 	}
 
-	function Sync() {
+	function Sync(all: boolean = false) {
 		let download: boolean[] = [];
-		checkboxRefs.forEach(checkbox => download.push(checkbox.checked));
+		all
+			? (download = Array(checkboxRefs.length).fill(true))
+			: (checkboxRefs.forEach(checkbox => download.push(checkbox.checked)));
 		setCount(download.filter(e => e).length);
 
 		progress.current?.open();
@@ -62,7 +64,7 @@ export default function DownloadInfo() {
 		}
 
 		if (ipcRenderer) {
-			ipcRenderer.invoke('packManager.DownloadSongsFromPack', {index: id, download: download}).then(async () => {
+			ipcRenderer.invoke(all ? 'packManager.DownloadSongsFromPack' : 'packManager.SyncPack', {index: id, download: download}).then(async () => {
 				await wait();
 				progress.current?.close();
 			});
@@ -174,7 +176,7 @@ export default function DownloadInfo() {
 										checkboxRefs[i].checked = true;
 									});
 
-									Sync();
+									Sync(true);
 								}
 							}}
 						>

@@ -119,7 +119,7 @@ export default class PackManager {
 				const downloadPath = path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI");
 				const songZipName = song.download.split('/').pop();
 				
-				if (!fss.existsSync(path.join(downloadPath, songZipName))) {
+				if (!fss.existsSync(path.join(downloadPath, songZipName)) || redownload) {
 					await downloader(song.download, downloadPath).catch((e) => {
 						Logger.error(`Level ${song.title} failed to download, skipping...`, e);
 						return
