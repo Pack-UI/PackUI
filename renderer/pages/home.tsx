@@ -7,6 +7,7 @@ import {GetAllPacks, GetAllSongs} from "@tools/communicationHelper";
 import Song from "@classes/song";
 import Pack from "@classes/pack";
 import Translator from "@tools/translator";
+import {BsPlus} from "react-icons/bs";
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);
@@ -18,7 +19,7 @@ export default function Home() {
 		if (packs == null) GetAllPacks(ipcRenderer).then(_ => setPacks(_));
 	}
 
-	return <div className=" text-white flex gap-4 w-full h-[90vh] p-8">
+	return <div className="text-white flex gap-4 w-full h-[90vh] p-8">
 		<div
 			className="border-white w-full h-full border-2 rounded-lg p-8 items-center justify-center text-center overflow-y-scroll scrollbar-pill">
 			<h1 className="mb-2"><Translator translation="home.maps" /></h1>
@@ -46,5 +47,10 @@ export default function Home() {
 				/>}
 			</div>
 		</div>
+		<a href="/editor/new">
+			<div className="absolute right-4 bottom-4 bg-green-600 rounded-full w-14 h-14 flex justify-center items-center cursor-pointer">
+				<BsPlus className="w-12 h-12" aria-hidden="true" />
+			</div>
+		</a>
 	</div>;
 }

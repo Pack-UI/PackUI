@@ -107,26 +107,29 @@ export default class PackManager {
 			}
 
 			const packPath = await this.CreatePackFolder(pack);
-			const songs = pack.songs;
 			let cache = await new FileParser().GetCacheFromPack(packPath);
-
+			
 			await Promise.all(downloads.map(async (download, index) => {
 
 				if (!download) {
 					return;
 				}
-
-				const song = songs[index];
+				
+				const song = pack.songs[index];
 				const downloadPath = path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI");
 				const songZipName = song.download.split('/').pop();
-
-				await downloader(song.download, downloadPath).catch(() => {
-					Logger.error(`Level ${song.title} failed to download, skipping...`);
-					return
-				});
+				
+				if (!fss.existsSync(path.join(downloadPath, songZipName)) || redownload) {
+					await downloader(song.download, downloadPath).catch((e) => {
+						Logger.error(`Level ${song.title} failed to download, skipping...`, e);
+						return
+					});
+				} else {
+					Logger.log(`Skipping download, instead using ${songZipName} from cache`)
+				}
 
 				const songPath = path.join(packPath, song.title.replace(/[\/\\:*?"<>]/g, ""));
-
+				
 				await decompress(path.join(downloadPath, songZipName), songPath).catch(e => Logger.warn(`Something went wrong while decompressing "${song.title}, skipping..."`));
 
 				const folderHash = await hashElement(songPath, {files: {include: '*'}});
@@ -136,18 +139,18 @@ export default class PackManager {
 					name: song.title.replace(/[\/\\:*?"<>]/g, ""),
 					hash: folderHash.hash
 				});
-
+				
 				BrowserWindow.getAllWindows()[0].webContents.send('progress.SongComplete');
 			}));
-
+			
 			await fs.writeFile(path.join(packPath, 'PackUI.cache'), JSON.stringify(cache));
-
+			
 			resolve();
 		}) || undefined;
 	}
 
-	async RemovePackFolder(packPath: string) {
-		await fs.rm(packPath, {recursive: true, force: true})
+	RemovePackFolder(packPath: string) {
+		return fs.rm(packPath, {recursive: true, force: true})
 	}
 
 	async CreatePackFolder(pack: Pack) {

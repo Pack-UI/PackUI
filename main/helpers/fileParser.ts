@@ -10,8 +10,26 @@ import {app} from "electron";
 
 const isProd = process.env.NODE_ENV === 'production';
 
+interface Iscan {
+	lastScan: number;
+	songs: object;
+	packs: Pack[];
+}
+
 export default class FileParser {
+	scan: Iscan = {lastScan: 0, songs: {}, packs: []};
+	
+	
 	async GetAllPacks() {
+
+		if (this.scan) {
+			log.log(`searching cache for packs`)
+			if (this.scan.packs.length > 0){
+				return this.scan.packs
+			}
+			log.log("no cache found");
+		}
+		
 		const customSongsPath = new Config().customSongsFolder;
 
 		if (!fss.existsSync(customSongsPath)) {
@@ -102,6 +120,14 @@ export default class FileParser {
 
 	async GetAllSongs(pathToScan?: string) {
 
+		if (this.scan) {
+			log.log(`searching cache for songs in "${pathToScan}"`)
+			if (this.scan.songs[pathToScan]){
+				return this.scan.songs[pathToScan]
+			} 
+			log.log("no cache found");
+		}
+		
 		const customSongsPath = new Config().customSongsFolder;
 
 		const rootPath = pathToScan ? pathToScan : customSongsPath;
@@ -172,6 +198,8 @@ export default class FileParser {
 				})
 			);
 
+			this.scan.songs[pathToScan] = songs;
+			
 			resolve(songs);
 		});
 	}
