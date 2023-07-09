@@ -1,12 +1,12 @@
 ﻿import Song from '../classes/song';
-import Pack from "../classes/pack";
+import Pack from '../classes/pack';
 import * as fs from 'fs/promises';
 import * as fss from 'fs';
 import path from 'path';
-import {jsonrepair} from 'jsonrepair';
-import log from "electron-log";
-import Config from "./config";
-import {app} from "electron";
+import { jsonrepair } from 'jsonrepair';
+import log from 'electron-log';
+import Config from './config';
+import { app } from 'electron';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -17,30 +17,37 @@ interface Iscan {
 }
 
 export default class FileParser {
-	scan: Iscan = {lastScan: 0, songs: {}, packs: []};
-	
-	
-	async GetAllPacks() {
+	scan: Iscan = { lastScan: 0, songs: {}, packs: [] };
+	currentlyScanningSongs: boolean = false;
+	currentlyScanningPacks: boolean = false;
 
-		if (this.scan) {
-			log.log(`searching cache for packs`)
-			if (this.scan.packs.length > 0){
-				return this.scan.packs
+	async GetAllPacks(forceRescan: boolean = false) {
+		// Check cache for packs
+		if (this.scan && !forceRescan) {
+			log.log(`searching cache for packs`);
+			if (this.scan.packs.length > 0) {
+				return this.scan.packs;
 			}
-			log.log("no cache found");
+			log.log('no cache found');
 		}
-		
+
+		// Return empty if already scanning
+		if (this.currentlyScanningPacks && !forceRescan) {
+			return;
+		}
+		this.currentlyScanningPacks = true;
+
 		const customSongsPath = new Config().customSongsFolder;
 
+		// Check if path is valid
 		if (!fss.existsSync(customSongsPath)) {
 			log.error(`Path ${customSongsPath} does not exist`);
-			return new Promise<Pack[]>(resolve => resolve([]))
+			return new Promise<Pack[]>(resolve => resolve([]));
 		}
 
+		log.info('Loading packs in ' + customSongsPath);
+
 		return new Promise<Pack[]>(async (resolve, _) => {
-
-			log.info("Loading packs in " + customSongsPath);
-
 			let packs: Pack[] = [];
 
 			// Get all dirs in custom songs
@@ -54,58 +61,68 @@ export default class FileParser {
 					// Check if folder is pack
 					const packFiles = files.filter(file => file.split('.').pop() === 'pack');
 					if (packFiles.length !== 0) {
-
 						const rawData = await fs.readFile(path.join(folderPath, packFiles[0]), 'utf-8');
 
 						const packConfig = {};
 
 						rawData.split(/\r?\n/).forEach(line => {
-							let keyValuePair = line.split("=", 2);
+							let keyValuePair = line.split('=', 2);
 							packConfig[keyValuePair[0].trim()] = keyValuePair[1].trim();
 						});
 
 						// Check if preview image exists
-						const iconExists = "icon" in packConfig ? fss.existsSync(path.join(folderPath, <string>packConfig["icon"])) : false;
-						const coverExists = "image" in packConfig ? fss.existsSync(path.join(folderPath, <string>packConfig["image"])) : false;
+						const iconExists =
+							'icon' in packConfig
+								? fss.existsSync(path.join(folderPath, <string>packConfig['icon']))
+								: false;
+						const coverExists =
+							'image' in packConfig
+								? fss.existsSync(path.join(folderPath, <string>packConfig['image']))
+								: false;
 
 						const lastModified = new Date(Date.now());
 						// TODO: Get last modified date from .pack file
 
-						const songs = await this.GetAllSongs(folderPath);
+						const songs = await this.GetAllSongs(folderPath, true);
 
 						let pack = new Pack(
 							folderPath,
-							packConfig["title"] || null,
-							packConfig["description"] || null,
-							packConfig["author"] || null,
-							packConfig["artist"] || null,
-							packConfig["difficulty"] || null,
-							packConfig["color"] || null,
+							packConfig['title'] || null,
+							packConfig['description'] || null,
+							packConfig['author'] || null,
+							packConfig['artist'] || null,
+							packConfig['difficulty'] || null,
+							packConfig['color'] || null,
 							fss.statSync(path.join(folderPath, packFiles[0])).birthtime || null,
 							lastModified || null,
-							songs
+							songs || []
 						);
 
-						iconExists ? pack.iconImagePath = packConfig["icon"] : null;
-						coverExists ? pack.coverImagePath = packConfig["image"] : null;
+						iconExists ? (pack.iconImagePath = packConfig['icon']) : null;
+						coverExists ? (pack.coverImagePath = packConfig['image']) : null;
 
 						packs.push(pack);
 					}
 				})
 			);
+
+			// Update cache and finish scan
+			this.scan.packs = packs;
+			this.currentlyScanningPacks = false;
+
 			resolve(packs);
 		});
 	}
 
 	async ClearTempFolder() {
-		await fs.rm(path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI"), {recursive: true, force: true});
+		await fs.rm(path.join(app.getPath('temp'), isProd ? 'PackUI' : 'Dev.PackUI'), { recursive: true, force: true });
 	}
 
 	async GetCacheFromPack(packPath: string) {
-		return new Promise<any>(async (resolve, reject) => {
+		return new Promise<any>(async resolve => {
+			const cachePath = path.join(packPath, 'PackUI.cache');
 
-			const cachePath = path.join(packPath, "PackUI.cache");
-
+			// Check if path is valid
 			if (!fss.existsSync(cachePath)) {
 				log.warn(`Path ${packPath} does not exist`);
 				resolve([]);
@@ -113,31 +130,36 @@ export default class FileParser {
 			}
 
 			const cache = await fs.readFile(cachePath);
-
-			resolve(JSON.parse(cache.toString()))
+			resolve(JSON.parse(cache.toString()));
 		});
 	}
 
-	async GetAllSongs(pathToScan?: string) {
-
-		if (this.scan) {
-			log.log(`searching cache for songs in "${pathToScan}"`)
-			if (this.scan.songs[pathToScan]){
-				return this.scan.songs[pathToScan]
-			} 
-			log.log("no cache found");
+	async GetAllSongs(pathToScan?: string, forceRescan: boolean = false) {
+		// Check cache for songs
+		if (this.scan && !forceRescan) {
+			log.log(`searching cache for songs in "${pathToScan}"`);
+			if (this.scan.songs[pathToScan]) {
+				return this.scan.songs[pathToScan];
+			}
+			log.log('no cache found');
 		}
-		
-		const customSongsPath = new Config().customSongsFolder;
 
+		// Return empty if already scanning
+		if (this.currentlyScanningSongs && !forceRescan) {
+			return;
+		}
+		this.currentlyScanningSongs = true;
+
+		const customSongsPath = new Config().customSongsFolder;
 		const rootPath = pathToScan ? pathToScan : customSongsPath;
 
-		if (!fss.existsSync(customSongsPath)) {
+		// Check if song path is valid
+		if (!fss.existsSync(rootPath)) {
 			log.error(`Path ${rootPath} does not exist`);
-			return new Promise<Song[]>(resolve => resolve([]))
+			return new Promise<Song[]>(resolve => resolve([]));
 		}
 
-		log.info("Loading songs in " + rootPath);
+		log.info('Loading songs in ' + rootPath);
 
 		return new Promise<Song[]>(async (resolve, _) => {
 			let songs: Song[] = [];
@@ -149,7 +171,7 @@ export default class FileParser {
 				folders.map(async folder => {
 					const folderPath = path.join(rootPath, folder);
 
-					if (folderPath.endsWith(".pack")) {
+					if (folderPath.endsWith('.pack')) {
 						// Skip .pack files
 						return;
 					}
@@ -166,15 +188,15 @@ export default class FileParser {
 					const adofaiData = JSON.parse(fixedData.toString());
 
 					// Check if preview image exists
-					const songExists = fss.existsSync(
-						path.join(folderPath, adofaiData['settings']['songFilename'])
-					);
-					const coverExists = fss.existsSync(
-						path.join(folderPath, adofaiData['settings']['previewImage'])
-					);
+					const songExists = fss.existsSync(path.join(folderPath, adofaiData['settings']['songFilename']));
+					const coverExists = fss.existsSync(path.join(folderPath, adofaiData['settings']['previewImage']));
 
-					const tiles: number = typeof (adofaiData.pathData) === 'string' ? String(adofaiData.pathData).length : adofaiData.angleData.length;
+					const tiles: number =
+						typeof adofaiData.pathData === 'string'
+							? String(adofaiData.pathData).length
+							: adofaiData.angleData.length;
 
+					// Create song object
 					songs.push(
 						new Song(
 							folderPath,
@@ -198,8 +220,10 @@ export default class FileParser {
 				})
 			);
 
+			// Update cache and finish scan
 			this.scan.songs[pathToScan] = songs;
-			
+			this.currentlyScanningSongs = false;
+
 			resolve(songs);
 		});
 	}

@@ -1,4 +1,4 @@
-import {NextApiRequest, NextApiResponse} from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import * as fs from 'fs';
 import path from 'path';
 

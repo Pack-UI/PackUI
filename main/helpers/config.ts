@@ -1,8 +1,8 @@
-import * as fss from 'fs'
-import path from "path";
-import log from "electron-log";
-import {app} from "electron";
-import Translator from "./Translator";
+import * as fss from 'fs';
+import path from 'path';
+import log from 'electron-log';
+import { app } from 'electron';
+import Translator from './Translator';
 
 const isProd = process.env.NODE_ENV === 'production';
 let configPath: string;
@@ -13,14 +13,13 @@ export default class Config {
 	language: string;
 
 	constructor() {
-		configPath = path.join(app.getPath('userData'), "PackUI.config.json");
+		configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
 		this.LoadConfig();
 	}
 
 	Set(key: string, value: any) {
-
 		// Warn if key is invalid
-		if (key ! in Object.getOwnPropertyNames(this)) {
+		if (key! in Object.getOwnPropertyNames(this)) {
 			log.warn(`Setting unknown field "${key}"`);
 		}
 
@@ -28,11 +27,11 @@ export default class Config {
 		config[key] = value;
 		fss.writeFileSync(configPath, JSON.stringify(config), 'utf-8');
 
-		this.LoadConfig()
+		this.LoadConfig();
 	}
 
 	private ReadConfig(path: string): Config {
-		return JSON.parse(fss.readFileSync(path, 'utf-8'))
+		return JSON.parse(fss.readFileSync(path, 'utf-8'));
 	}
 
 	private LoadConfig() {
