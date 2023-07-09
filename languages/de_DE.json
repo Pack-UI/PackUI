@@ -4,12 +4,12 @@
 	"navbar.dashboard": "Dashboard",
 	"navbar.editor": "Editor",
 	"navbar.download": "Download",
-	"navbar.settings": "Settings",
-	"navbar.notifications": "Notifications",
-	"settings.title": "Settings",
+	"navbar.settings": "Einstellungen",
+	"navbar.notifications": "Benachrichtigungen",
+	"settings.title": "Einstellungen",
 	"settings.language.label": "Language",
 	"settings.customSongsFolder.label": "Custom songs folder",
-	"settings.customSongsFolder.button": "Select folder",
+	"settings.customSongsFolder.button": "Ordner auswählen",
 	"settings.clearDownloadCache.label": "Clear download cache",
 	"settings.clearDownloadCache.button": "Clear",
 	"settings.packDownloadApis.label": "Pack download APIs",
@@ -36,5 +36,5 @@
 	"info.verifyIntegrity": "Verify pack integrity",
 	"info.madeBy": "By",
 	"progress.installedCount": "Installed %1$s out of %2$s songs",
-	"error.close": "Click anywhere to close..."
+	"error.close": "Zum Schließen irgendwo klicken..."
 }
