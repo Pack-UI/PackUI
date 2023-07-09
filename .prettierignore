@@ -1,0 +1,11 @@
+node_modules
+*.log
+.next
+app
+dist
+.idea
+.github
+.git
+yarn.lock
+.prettierignore
+.husky
