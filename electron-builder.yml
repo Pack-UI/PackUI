@@ -2,14 +2,14 @@ appId: com.thijnmens.packui
 productName: PackUI
 copyright: Copyright © 2023 Thijn Smulders
 directories:
-  output: dist
-  buildResources: resources
+    output: dist
+    buildResources: resources
 files:
-  - from: .
-    filter:
-      - package.json
-      - app
+    - from: .
+      filter:
+          - package.json
+          - app
 extraFiles:
-  - from: .
-    filter: languages
+    - from: .
+      filter: languages
 publish: null

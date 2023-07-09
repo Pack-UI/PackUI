@@ -1,56 +1,69 @@
-import {useState} from "react";
-import Image from "next/image";
-import MapCard from "@components/mapcard";
-import PackCard from "@components/packcard";
-import {GetAllPacks, GetAllSongs} from "@tools/communicationHelper";
-import Song from "@classes/song";
-import Pack from "@classes/pack";
-import Translator from "@tools/translator";
-import {BsPlus} from "react-icons/bs";
-import Link from "next/link";
-import {ipcRenderer} from "electron";
+import { useState } from 'react';
+import Image from 'next/image';
+import MapCard from '@components/mapcard';
+import PackCard from '@components/packcard';
+import { GetAllPacks, GetAllSongs } from '@tools/communicationHelper';
+import Song from '@classes/song';
+import Pack from '@classes/pack';
+import Translator from '@tools/translator';
+import { BsPlus } from 'react-icons/bs';
+import Link from 'next/link';
+import { ipcRenderer } from 'electron';
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);
 	let [packs, setPacks] = useState<Pack[] | null>(null);
-	
+
 	if (ipcRenderer) {
 		if (songs == null) GetAllSongs(ipcRenderer).then(_ => setSongs(_));
 		if (packs == null) GetAllPacks(ipcRenderer).then(_ => setPacks(_));
 	}
 
-	return <div className="text-white flex gap-4 w-full h-[90vh] p-8">
-		<div
-			className="border-white w-full h-full border-2 rounded-lg p-8 items-center justify-center text-center overflow-y-scroll scrollbar-pill">
-			<h1 className="mb-2"><Translator translation="home.maps" /></h1>
-			<hr/>
-			<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
-				{songs ? songs.map((song, i) => <MapCard key={i} song={song}/>) : <Image
-					src="/spinner.svg"
-					className="animate-spin w-5 h-5 m-auto text-white"
-					alt="loading..."
-					width={20}
-					height={20}
-				/>}
+	return (
+		<div className="flex h-[90vh] w-full gap-4 p-8 text-white">
+			<div className="scrollbar-pill h-full w-full items-center justify-center overflow-y-scroll rounded-lg border-2 border-white p-8 text-center">
+				<h1 className="mb-2">
+					<Translator translation="home.maps" />
+				</h1>
+				<hr />
+				<div className="my-2 grid grid-flow-row grid-cols-1 gap-2">
+					{songs ? (
+						songs.map((song, i) => <MapCard key={i} song={song} />)
+					) : (
+						<Image
+							src="/spinner.svg"
+							className="m-auto h-5 w-5 animate-spin text-white"
+							alt="loading..."
+							width={20}
+							height={20}
+						/>
+					)}
+				</div>
 			</div>
+			<div className="h-full w-full items-center justify-center rounded-lg border-2  border-white p-8 text-center">
+				<h1 className="mb-2">
+					<Translator translation="home.packs" />
+				</h1>
+				<hr />
+				<div className="my-2 grid grid-flow-row grid-cols-1 gap-2">
+					{packs ? (
+						packs.map((pack, i) => <PackCard key={i} pack={pack} />)
+					) : (
+						<Image
+							src="/spinner.svg"
+							className="m-auto h-5 w-5 animate-spin text-white"
+							alt="loading..."
+							width={20}
+							height={20}
+						/>
+					)}
+				</div>
+			</div>
+			<Link href="/editor/new">
+				<div className="absolute bottom-4 right-4 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-green-600">
+					<BsPlus className="h-12 w-12" aria-hidden="true" />
+				</div>
+			</Link>
 		</div>
-		<div className="border-white w-full h-full border-2 rounded-lg p-8  items-center justify-center text-center">
-			<h1 className="mb-2"><Translator translation="home.packs" /></h1>
-			<hr/>
-			<div className="grid grid-cols-1 grid-flow-row gap-2 my-2">
-				{packs ? packs.map((pack, i) => <PackCard key={i} pack={pack}/>) : <Image
-					src="/spinner.svg"
-					className="animate-spin w-5 h-5 m-auto text-white"
-					alt="loading..."
-					width={20}
-					height={20}
-				/>}
-			</div>
-		</div>
-		<Link href="/editor/new">
-			<div className="absolute right-4 bottom-4 bg-green-600 rounded-full w-14 h-14 flex justify-center items-center cursor-pointer">
-				<BsPlus className="w-12 h-12" aria-hidden="true" />
-			</div>
-		</Link>
-	</div>;
+	);
 }

@@ -1,4 +1,4 @@
-import Song from "@classes/song";
+import Song from '@classes/song';
 
 export default class Pack {
 	packPath: string;
@@ -16,8 +16,22 @@ export default class Pack {
 	iconImagePath?: string;
 	songs: Song[];
 
-
-	constructor(packPath: string, title: string, description: string, author: string, artist: string, difficulty: number, color: string, creationDate: Date, lastUpdate: Date, songs: Song[], version?: string, tags?: string[], coverImagePath?: string, iconImagePath?: string) {
+	constructor(
+		packPath: string,
+		title: string,
+		description: string,
+		author: string,
+		artist: string,
+		difficulty: number,
+		color: string,
+		creationDate: Date,
+		lastUpdate: Date,
+		songs: Song[],
+		version?: string,
+		tags?: string[],
+		coverImagePath?: string,
+		iconImagePath?: string
+	) {
 		this.packPath = packPath;
 		this.title = title;
 		this.description = description;

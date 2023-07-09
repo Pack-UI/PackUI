@@ -1,18 +1,18 @@
-import {app, BrowserWindow} from 'electron';
+import { app, BrowserWindow } from 'electron';
 import serve from 'electron-serve';
-import {createWindow} from './helpers';
+import { createWindow } from './helpers';
 import CommunicationHandler from './communicationHandler';
 import log from 'electron-log';
-import path from "path";
-import * as fss from "fs";
-import Translator from "./helpers/Translator";
+import path from 'path';
+import * as fss from 'fs';
+import Translator from './helpers/Translator';
 
 const configTemplate = require('../config/PackUI.config.json');
 
 const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
-	serve({directory: 'app'});
+	serve({ directory: 'app' });
 } else {
 	app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
@@ -28,14 +28,14 @@ log.errorHandler.startCatching();
 const configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
 
 if (!fss.existsSync(configPath)) {
-	fss.writeFileSync(configPath, JSON.stringify(configTemplate), "utf-8")
+	fss.writeFileSync(configPath, JSON.stringify(configTemplate), 'utf-8');
 }
 
 // Copy language files
 new Translator().CopyTranslations(isProd);
 
 // Create temp folder if it doesn't exist
-const tempPath =  path.join(app.getPath('temp'), isProd ? "PackUI" : "Dev.PackUI");
+const tempPath = path.join(app.getPath('temp'), isProd ? 'PackUI' : 'Dev.PackUI');
 
 if (!fss.existsSync(tempPath)) {
 	fss.mkdirSync(tempPath);
@@ -51,17 +51,16 @@ CommunicationHandler();
 		const mainWindow = createWindow('PackUI', {
 			width: 1200,
 			height: 800,
-			icon: path.join(__dirname, "../resources/icon.ico"),
-			title: "PackUI",
+			icon: path.join(__dirname, '../resources/icon.ico'),
+			title: 'PackUI',
 			autoHideMenuBar: true,
-			backgroundColor: "#2D2D2D"
+			backgroundColor: '#2D2D2D',
 		});
 
 		// Send popup event on error
 		log.hooks.push((message, transport) => {
-
 			if (message.level === 'error') {
-				mainWindow.webContents.send('onError', message)
+				mainWindow.webContents.send('onError', message);
 			}
 
 			return message;
@@ -73,9 +72,8 @@ CommunicationHandler();
 			const port = process.argv[2];
 			await mainWindow.loadURL(`http://localhost:${port}/home`);
 		}
-
 	}
-	log.info(`\n\n\nNEW APPLICATION BOOT AT ${new Date(Date.now()).toISOString()}\n\n\n`)
+	log.info(`\n\n\nNEW APPLICATION BOOT AT ${new Date(Date.now()).toISOString()}\n\n\n`);
 })();
 
 app.on('window-all-closed', () => {

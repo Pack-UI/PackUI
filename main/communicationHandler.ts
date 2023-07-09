@@ -1,14 +1,13 @@
-import {ipcMain, OpenDialogOptions} from 'electron';
-import {FileParser} from './helpers';
-import Config from "./helpers/config";
-import utils from "./helpers/utils";
-import PackManager from "./helpers/packManager";
-import Pack from "@classes/pack";
-import path from "path";
-import Translator from "./helpers/Translator";
+import { ipcMain, OpenDialogOptions } from 'electron';
+import { FileParser } from './helpers';
+import Config from './helpers/config';
+import utils from './helpers/utils';
+import PackManager from './helpers/packManager';
+import Pack from '@classes/pack';
+import path from 'path';
+import Translator from './helpers/Translator';
 
 export default function communicationHandler() {
-
 	/* FileParser */
 	const fileParser = new FileParser();
 
@@ -18,7 +17,9 @@ export default function communicationHandler() {
 		if (typeof data == 'string') {
 			return fileParser.GetCacheFromPack(data);
 		} else {
-			return fileParser.GetCacheFromPack(path.join(new Config().customSongsFolder, data.title.replace(/[\/\\:*?"<>]/g, "")));
+			return fileParser.GetCacheFromPack(
+				path.join(new Config().customSongsFolder, data.title.replace(/[\/\\:*?"<>]/g, ''))
+			);
 		}
 	});
 	ipcMain.on('fileParser.ClearTempFolder', (event, _) => fileParser.ClearTempFolder());
@@ -33,15 +34,21 @@ export default function communicationHandler() {
 	/* Pack Manager */
 	const packManager = new PackManager();
 
-	ipcMain.handle('packManager.GetDownloadablePacks', (event, data: boolean = false) => packManager.GetDownloadablePacks(data));
+	ipcMain.handle('packManager.GetDownloadablePacks', (event, data: boolean = false) =>
+		packManager.GetDownloadablePacks(data)
+	);
 	ipcMain.handle('packManager.GetPackAtIndex', (event, data: number) => packManager.GetPackAtIndex(data));
-	ipcMain.handle('packManager.SyncPack', (event, data: any) => packManager.DownloadSongsFromPack(data.index, data.download));
-	ipcMain.handle('packManager.DownloadSongsFromPack', (event, data: any) => packManager.DownloadSongsFromPack(data.index, data.download, true));
+	ipcMain.handle('packManager.SyncPack', (event, data: any) =>
+		packManager.DownloadSongsFromPack(data.index, data.download)
+	);
+	ipcMain.handle('packManager.DownloadSongsFromPack', (event, data: any) =>
+		packManager.DownloadSongsFromPack(data.index, data.download, true)
+	);
 	ipcMain.handle('packManager.VerifyPackIntegrity', (event, data: Pack) => packManager.VerifyPackIntegrity(data));
-	
+
 	/* Translator */
-	const translator = new Translator()
-	
+	const translator = new Translator();
+
 	ipcMain.on('translator.ReloadTranslations', (event, _) => translator.ReloadTranslations());
 	ipcMain.handle('translator.GetTranslation', (event, data: string) => translator.GetTranslation(data));
 	ipcMain.handle('translator.GetAvailableLanguages', (event, _) => translator.GetAvailableLanguages());

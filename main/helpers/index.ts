@@ -1,4 +1,4 @@
-import createWindow from "./createWindow";
-import FileParser from "./fileParser";
+import createWindow from './createWindow';
+import FileParser from './fileParser';
 
-export {createWindow, FileParser};
+export { createWindow, FileParser };
