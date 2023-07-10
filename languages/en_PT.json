@@ -35,6 +35,7 @@
 	"info.downloadAll": "Haul in all the booty!",
 	"info.verifyIntegrity": "Inspect the pack's integrity, lest it be cursed!",
 	"info.madeBy": "By",
+	"info.search.placeholder": "Separate search queries with a comma (,)",
 	"progress.installedCount": "Installed %1$s of the %2$s shanties, arr!",
 	"error.close": "Click anywhere to lower the anchor and close the ship's log."
 }
