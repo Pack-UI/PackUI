@@ -6,10 +6,11 @@ dist
 .idea
 .github
 .git
+.gitignore
 .prettierignore
 .husky
 .pnp.*
-.yarn/*
+.yarn
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
