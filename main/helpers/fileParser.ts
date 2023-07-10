@@ -22,13 +22,18 @@ export default class FileParser {
 	currentlyScanningPacks: boolean = false;
 
 	async GetAllPacks(forceRescan: boolean = false) {
+		const startTime = performance.now(); // Timer
+
 		// Check cache for packs
 		if (this.scan && !forceRescan) {
-			log.log(`searching cache for packs`);
 			if (this.scan.packs.length > 0) {
+				const endTime = performance.now(); // Timer
+				console.log(
+					`Loaded ${this.scan.packs.length} pack(s) in ${Math.ceil(endTime - startTime)}ms from cache`
+				);
+
 				return this.scan.packs;
 			}
-			log.log('no cache found');
 		}
 
 		// Return empty if already scanning
@@ -41,11 +46,11 @@ export default class FileParser {
 
 		// Check if path is valid
 		if (!fss.existsSync(customSongsPath)) {
-			log.error(`Path ${customSongsPath} does not exist`);
+			log.error(`%cPath "${customSongsPath}" does not exist`, 'color: red');
 			return new Promise<Pack[]>(resolve => resolve([]));
 		}
 
-		log.info('Loading packs in ' + customSongsPath);
+		log.info(`Loading packs in %c"${customSongsPath}"`, 'color: gray');
 
 		return new Promise<Pack[]>(async (resolve, _) => {
 			let packs: Pack[] = [];
@@ -56,7 +61,12 @@ export default class FileParser {
 			await Promise.all(
 				folders.map(async folder => {
 					const folderPath = path.join(customSongsPath, folder);
-					const files = await fs.readdir(folderPath);
+					const files = await fs
+						.readdir(folderPath)
+						.catch(() =>
+							log.warn(`%c"${folderPath}" %cis not a dir, skipping`, 'color: gray', 'color: unset')
+						);
+					if (!files) return;
 
 					// Check if folder is pack
 					const packFiles = files.filter(file => file.split('.').pop() === 'pack');
@@ -83,7 +93,7 @@ export default class FileParser {
 						const lastModified = new Date(Date.now());
 						// TODO: Get last modified date from .pack file
 
-						const songs = await this.GetAllSongs(folderPath, true);
+						const songs = await this.GetAllSongs(folderPath, forceRescan);
 
 						let pack = new Pack(
 							folderPath,
@@ -110,6 +120,9 @@ export default class FileParser {
 			this.scan.packs = packs;
 			this.currentlyScanningPacks = false;
 
+			const endTime = performance.now(); // Timer
+			console.log(`Loaded ${packs.length} pack(s) in ${Math.ceil(endTime - startTime)}ms`);
+
 			resolve(packs);
 		});
 	}
@@ -135,13 +148,23 @@ export default class FileParser {
 	}
 
 	async GetAllSongs(pathToScan?: string, forceRescan: boolean = false) {
+		const startTime = performance.now(); // Timer
+
+		const customSongsPath = new Config().customSongsFolder;
+		const rootPath = pathToScan ? pathToScan : customSongsPath;
+
 		// Check cache for songs
 		if (this.scan && !forceRescan) {
-			log.log(`searching cache for songs in "${pathToScan}"`);
-			if (this.scan.songs[pathToScan]) {
-				return this.scan.songs[pathToScan];
+			if (this.scan.songs[rootPath]) {
+				const endTime = performance.now(); // Timer
+				console.log(
+					`Loaded ${this.scan.songs[rootPath].length} pack(s) in ${Math.ceil(
+						endTime - startTime
+					)}ms from cache`
+				);
+
+				return this.scan.songs[rootPath];
 			}
-			log.log('no cache found');
 		}
 
 		// Return empty if already scanning
@@ -150,16 +173,13 @@ export default class FileParser {
 		}
 		this.currentlyScanningSongs = true;
 
-		const customSongsPath = new Config().customSongsFolder;
-		const rootPath = pathToScan ? pathToScan : customSongsPath;
-
 		// Check if song path is valid
 		if (!fss.existsSync(rootPath)) {
-			log.error(`Path ${rootPath} does not exist`);
+			log.error(`%cPath ${rootPath} does not exist`, 'color: red');
 			return new Promise<Song[]>(resolve => resolve([]));
 		}
 
-		log.info('Loading songs in ' + rootPath);
+		log.info(`Loading songs in %c"${rootPath}"`, 'color: gray');
 
 		return new Promise<Song[]>(async (resolve, _) => {
 			let songs: Song[] = [];
@@ -171,21 +191,28 @@ export default class FileParser {
 				folders.map(async folder => {
 					const folderPath = path.join(rootPath, folder);
 
-					if (folderPath.endsWith('.pack')) {
-						// Skip .pack files
-						return;
-					}
+					// Skip .pack files
+					if (folderPath.endsWith('.pack')) return;
 
 					// Check if folder is song
-					if (!fss.existsSync(path.join(folderPath, 'main.adofai'))) {
-						// No main.adofai file
-						log.warn(`FileMissing: No main.adofai file found in "${folderPath}"`);
-						return;
-					}
+					if (!fss.existsSync(path.join(folderPath, 'main.adofai'))) return;
 
-					const rawData = await fs.readFile(path.join(folderPath, 'main.adofai'));
-					const fixedData = jsonrepair(rawData.toString().replace(/^\uFEFF/, ''));
-					const adofaiData = JSON.parse(fixedData.toString());
+					const adofaiPath = path.join(folderPath, 'main.adofai');
+					const rawData = await fs.readFile(adofaiPath);
+
+					let adofaiData;
+
+					try {
+						adofaiData = JSON.parse(rawData.toString());
+					} catch (e) {
+						log.warn(`Error parsing ${adofaiPath}, attempting fix`);
+						const fixedData = jsonrepair(rawData.toString().replace(/^\uFEFF/, '')).toString();
+
+						await fs.rename(adofaiPath, `${adofaiPath}.backup`);
+						await fs.writeFile(adofaiPath, fixedData);
+
+						adofaiData = JSON.parse(fixedData);
+					}
 
 					// Check if preview image exists
 					const songExists = fss.existsSync(path.join(folderPath, adofaiData['settings']['songFilename']));
@@ -221,8 +248,11 @@ export default class FileParser {
 			);
 
 			// Update cache and finish scan
-			this.scan.songs[pathToScan] = songs;
+			this.scan.songs[rootPath] = songs;
 			this.currentlyScanningSongs = false;
+
+			const endTime = performance.now(); // Timer
+			console.log(`Loaded ${songs.length} song(s) in ${Math.ceil(endTime - startTime)}ms`);
 
 			resolve(songs);
 		});

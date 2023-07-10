@@ -16,7 +16,7 @@ export default function Home() {
 
 	if (ipcRenderer) {
 		if (songs == null) GetAllSongs(ipcRenderer).then(_ => setSongs(_));
-		if (packs == null) GetAllPacks(ipcRenderer).then(_ => setPacks(_));
+		if (packs == null && songs != null) GetAllPacks(ipcRenderer).then(_ => setPacks(_));
 	}
 
 	return (

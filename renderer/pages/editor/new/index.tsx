@@ -26,23 +26,11 @@ export default function NewPack() {
 
 	const handleDelete = i => {
 		let newTags = tags.filter((tag, index) => index !== i);
-		SetConfigField(
-			ipcRenderer,
-			'sources',
-			newTags.map(_tag => _tag['text'])
-		);
-
 		setTags(newTags);
 	};
 
 	const handleAddition = tag => {
 		let newTags = [...tags, tag];
-		SetConfigField(
-			ipcRenderer,
-			'sources',
-			newTags.map(_tag => _tag['text'])
-		);
-
 		setTags(newTags);
 	};
 

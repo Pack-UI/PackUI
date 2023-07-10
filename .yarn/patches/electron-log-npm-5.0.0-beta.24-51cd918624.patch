@@ -1,0 +1,132 @@
+diff --git a/src/main/transforms/style.js b/src/main/transforms/style.js
+index 16b4a44608e6fa8d170a8c468ead89f422aba1d1..60cff5ec15bbe857922157efb02d71bff8c4906b 100644
+--- a/src/main/transforms/style.js
++++ b/src/main/transforms/style.js
+@@ -1,73 +1,80 @@
+ 'use strict';
+ 
+ module.exports = {
+-  transformStyles,
++	transformStyles,
+ 
+-  applyAnsiStyles({ data }) {
+-    return transformStyles(data, styleToAnsi, resetAnsiStyle);
+-  },
++	applyAnsiStyles({ data }) {
++		return transformStyles(data, styleToAnsi, resetAnsiStyle);
++	},
+ 
+-  removeStyles({ data }) {
+-    return transformStyles(data, () => '');
+-  },
++	removeStyles({ data }) {
++		return transformStyles(data, () => '');
++	},
+ };
+ 
+ const ANSI_COLORS = {
+-  unset: '\x1b[0m',
+-  black: '\x1b[30m',
+-  red: '\x1b[31m',
+-  green: '\x1b[32m',
+-  yellow: '\x1b[33m',
+-  blue: '\x1b[34m',
+-  magenta: '\x1b[35m',
+-  cyan: '\x1b[36m',
+-  white: '\x1b[37m',
++	black: '\x1b[30m',
++	gray: '\x1b[90m',
++	red: '\x1b[31m',
++	brightRed: '\x1b[91m',
++	green: '\x1b[32m',
++	brightGreen: '\x1b[92m',
++	yellow: '\x1b[33m',
++	brightYellow: '\x1b[93m',
++	blue: '\x1b[34m',
++	brightBlue: '\x1b[94m',
++	magenta: '\x1b[35m',
++	brightMagenta: '\x1b[95m',
++	cyan: '\x1b[36m',
++	brightCyan: '\x1b[96m',
++	white: '\x1b[37m',
++	unset: '\x1b[0m',
+ };
+ 
+ function styleToAnsi(style) {
+-  const color = style.replace(/color:\s*(\w+).*/, '$1').toLowerCase();
+-  return ANSI_COLORS[color] || '';
++	const color = style.replace(/color:\s*(\w+).*/, '$1').toLowerCase();
++	return ANSI_COLORS[color] || '';
+ }
+ 
+ function resetAnsiStyle(string) {
+-  return string + ANSI_COLORS.unset;
++	return string + ANSI_COLORS.unset;
+ }
+ 
+ function transformStyles(data, onStyleFound, onStyleApplied) {
+-  const foundStyles = {};
++	const foundStyles = {};
+ 
+-  return data.reduce((result, item, index, array) => {
+-    if (foundStyles[index]) {
+-      return result;
+-    }
++	return data.reduce((result, item, index, array) => {
++		if (foundStyles[index]) {
++			return result;
++		}
+ 
+-    if (typeof item === 'string') {
+-      let valueIndex = index;
+-      let styleApplied = false;
++		if (typeof item === 'string') {
++			let valueIndex = index;
++			let styleApplied = false;
+ 
+-      item = item.replace(/%[1cdfiOos]/g, (match) => {
+-        valueIndex += 1;
++			item = item.replace(/%[1cdfiOos]/g, (match) => {
++				valueIndex += 1;
+ 
+-        if (match !== '%c') {
+-          return match;
+-        }
++				if (match !== '%c') {
++					return match;
++				}
+ 
+-        const style = array[valueIndex];
+-        if (typeof style === 'string') {
+-          foundStyles[valueIndex] = true;
+-          styleApplied = true;
+-          return onStyleFound(style, item);
+-        }
++				const style = array[valueIndex];
++				if (typeof style === 'string') {
++					foundStyles[valueIndex] = true;
++					styleApplied = true;
++					return onStyleFound(style, item);
++				}
+ 
+-        return match;
+-      });
++				return match;
++			});
+ 
+-      if (styleApplied && onStyleApplied) {
+-        item = onStyleApplied(item);
+-      }
+-    }
++			if (styleApplied && onStyleApplied) {
++				item = onStyleApplied(item);
++			}
++		}
+ 
+-    result.push(item);
+-    return result;
+-  }, []);
++		result.push(item);
++		return result;
++	}, []);
+ }

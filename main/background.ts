@@ -6,6 +6,7 @@ import log from 'electron-log';
 import path from 'path';
 import * as fss from 'fs';
 import Translator from './helpers/Translator';
+import * as process from 'process';
 
 const configTemplate = require('../config/PackUI.config.json');
 
@@ -18,11 +19,16 @@ if (isProd) {
 }
 
 // Configure logger
+process.stdout.isTTY = true;
+log.transports.console.useStyles = true;
 log.transports.file.level = 'info';
 log.transports.file.resolvePathFn = () => path.join(app.getPath('logs'), new Date(Date.now()).toDateString() + '.log');
 
 // Error handler
 log.errorHandler.startCatching();
+
+// Overwrite console.* with electron-log functions
+Object.assign(console, log.functions);
 
 // Create config if it doesn't exist
 const configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
