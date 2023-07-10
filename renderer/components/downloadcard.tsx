@@ -43,7 +43,7 @@ export default function DownloadCard(props: Props) {
 			<Popup ref={progress} position="left center">
 				<ProgressPopup count={pack.songs.length}></ProgressPopup>
 			</Popup>
-			<div className="relative">
+			<div className="relative cursor-pointer">
 				<Link href={`/download/info?id=${props.index}`}>
 					<div className="mb-2 flex h-64 w-full rounded-2xl bg-white bg-opacity-5 p-2 align-middle hover:bg-opacity-20">
 						<div className="float-left h-full w-52 pt-2">

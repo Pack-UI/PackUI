@@ -13,7 +13,7 @@ export default function MapCard(props: Props) {
 	const song = props.song;
 
 	return (
-		<div className="flex h-32 w-full rounded-2xl bg-white bg-opacity-5 p-2 align-middle hover:bg-opacity-20">
+		<div className="flex h-32 w-full cursor-pointer rounded-2xl bg-white bg-opacity-5 p-2 align-middle hover:bg-opacity-20">
 			<div className="float-left h-full w-32 pt-2">
 				<div className="h-24 w-24 rounded-lg shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)]">
 					<Image
