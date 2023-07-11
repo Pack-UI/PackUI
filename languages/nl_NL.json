@@ -35,7 +35,7 @@
 	"info.downloadAll": "Download alles",
 	"info.verifyIntegrity": "Verifieer pack integriteit",
 	"info.madeBy": "Door",
-	"info.search.placeholder": "Separate search queries with a comma (,)",
-	"progress.installedCount": "%1$s van de %2$s songs zijn geinstalleerd",
+	"info.search.placeholder": "Gebruik een komma (,) voor meerdere zoekopdrachten",
+	"progress.installedCount": "%1$s van de %2$s songs zijn geïnstalleerd",
 	"error.close": "Click ergens om te sluiten..."
 }
