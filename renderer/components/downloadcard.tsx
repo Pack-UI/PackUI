@@ -35,7 +35,8 @@ export default function DownloadCard(props: Props) {
 				.then(async () => {
 					await wait();
 					progress.current?.close();
-				});
+				})
+				.catch(e => console.error(e));
 	};
 
 	return (

@@ -21,14 +21,21 @@ function Translator(props: unknown): unknown {
 
 	if (typeof props === 'string') {
 		if (ipcRenderer) {
-			if (translatedString == '') ipcRenderer.invoke('translator.GetTranslation', props).then(_ => setString(_));
+			if (translatedString == '')
+				ipcRenderer
+					.invoke('translator.GetTranslation', props)
+					.then(_ => setString(_))
+					.catch(e => console.error(e));
 		}
 
 		return translatedString;
 	} else {
 		if (ipcRenderer) {
 			if (translatedString == '')
-				ipcRenderer.invoke('translator.GetTranslation', props['translation']).then(_ => setString(_));
+				ipcRenderer
+					.invoke('translator.GetTranslation', props['translation'])
+					.then(_ => setString(_))
+					.catch(e => console.error(e));
 		}
 
 		const vars = props['vars'] || [];

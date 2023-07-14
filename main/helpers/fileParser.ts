@@ -96,7 +96,7 @@ export default class FileParser {
 						const songs = await this.GetAllSongs(folderPath, forceRescan);
 
 						let pack = new Pack(
-							folderPath,
+							folder,
 							packConfig['title'] || null,
 							packConfig['description'] || null,
 							packConfig['author'] || null,
@@ -226,7 +226,7 @@ export default class FileParser {
 					// Create song object
 					songs.push(
 						new Song(
-							folderPath,
+							folder,
 							adofaiData['settings']['song'] || null,
 							adofaiData['settings']['artist'] || null,
 							adofaiData['settings']['author'] || null,
@@ -234,10 +234,10 @@ export default class FileParser {
 							adofaiData['settings']['seizureWarning'] !== 'Disabled' || true,
 							adofaiData['settings']['difficulty'] || null,
 							adofaiData['settings']['songFilename'] !== '' && songExists
-								? path.join(folderPath, adofaiData['settings']['songFilename'])
+								? adofaiData['settings']['songFilename']
 								: null,
 							adofaiData['settings']['previewImage'] !== '' && coverExists
-								? path.join(folderPath, adofaiData['settings']['previewImage'])
+								? adofaiData['settings']['previewImage']
 								: null,
 							Array(adofaiData['actions']).length || null,
 							tiles || null,

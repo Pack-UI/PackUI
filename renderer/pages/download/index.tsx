@@ -13,15 +13,22 @@ export default function Download() {
 
 	if (packs && !filteredPacks) setFilteredPacks(packs);
 	if (ipcRenderer) {
-		if (packs == null) ipcRenderer.invoke('packManager.GetDownloadablePacks').then(_ => setPacks(_));
+		if (packs == null)
+			ipcRenderer
+				.invoke('packManager.GetDownloadablePacks')
+				.then(_ => setPacks(_))
+				.catch(e => console.error(e));
 	}
 
 	const refreshPacks = () => {
 		if (ipcRenderer)
-			ipcRenderer.invoke('packManager.GetDownloadablePacks', true).then(_ => {
-				setPacks(_);
-				setFilteredPacks(_);
-			});
+			ipcRenderer
+				.invoke('packManager.GetDownloadablePacks', true)
+				.then(_ => {
+					setPacks(_);
+					setFilteredPacks(_);
+				})
+				.catch(e => console.error(e));
 		setPacks([]);
 		setFilteredPacks([]);
 	};
@@ -65,7 +72,7 @@ export default function Download() {
 				<form className="flex w-full gap-4">
 					<input
 						type="text"
-						className="h-12 w-1/4 p-2"
+						className="h-12 w-1/2 p-2"
 						placeholder="Search"
 						onChange={e => setSearchInput(e.target.value)}
 					/>

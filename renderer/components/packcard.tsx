@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import { BsFire, BsHash } from 'react-icons/bs';
 import Pack from '@classes/pack';
 import Translator from '@tools/translator';
+import path from 'path';
 
 interface Props {
 	pack: Pack;
@@ -16,25 +16,23 @@ export default function PackCard(props: Props) {
 		<div className="flex h-32 w-full cursor-pointer rounded-2xl bg-white bg-opacity-5 p-2 align-middle hover:bg-opacity-20">
 			<div className="float-left h-full w-32 pt-2">
 				<div className="h-24 w-24 rounded-lg shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)]">
-					<Image
+					<img
 						src={
 							pack.coverImagePath
-								? `http://localhost:8888/api/GetImageFromDisk?file=${pack.coverImagePath}`
+								? `http://localhost:24658/${path.join(pack.packPath, pack.coverImagePath)}`
 								: '/logo.png'
 						}
 						alt={`${pack.title} Cover`}
 						width="96"
 						height="96"
 						className="h-24 w-24 rounded-lg object-cover"
-						onError={e => {
-							e.currentTarget.src = 'https://cdn.packui.net/images/logo.png';
-						}}
 					/>
 				</div>
 			</div>
 
 			<div className="relative float-right w-full">
 				<h1 className="font-bold">{pack.title}</h1>
+				<p className="text-sm italic opacity-70">{pack.author}</p>
 				<div className="absolute bottom-0 grid w-full cursor-default grid-flow-col grid-cols-2 opacity-75">
 					<div className="group relative">
 						<BsFire className="mx-auto h-6 w-6" aria-hidden="true" />

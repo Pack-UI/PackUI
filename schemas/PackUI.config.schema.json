@@ -4,6 +4,10 @@
 	"description": "Config schema for PackUI",
 	"type": "object",
 	"properties": {
+		"version": {
+			"description": "Config version",
+			"type": "integer"
+		},
 		"customSongsFolder": {
 			"description": "Path to the folder where the custom songs are stored",
 			"type": "string"
@@ -14,6 +18,14 @@
 			"items": {
 				"type": "string"
 			}
+		},
+		"language": {
+			"description": "Language PackUI should use",
+			"type": "string"
+		},
+		"port": {
+			"description": "Port for image server",
+			"type": "integer"
 		}
 	}
 }

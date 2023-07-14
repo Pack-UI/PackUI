@@ -54,7 +54,10 @@ export default function DownloadInfo() {
 	if (pack && songs == null) setSongs(pack.songs);
 	if (ipcRenderer) {
 		if (pack == null)
-			ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => (_ == undefined ? undefined : setPack(_)));
+			ipcRenderer
+				.invoke('packManager.GetPackAtIndex', id)
+				.then(_ => (_ == undefined ? undefined : setPack(_)))
+				.catch(e => console.error(e));
 		if (installedSongs == null && pack != null)
 			ipcRenderer
 				.invoke('fileParser.GetCacheFromPack', pack)
@@ -86,7 +89,8 @@ export default function DownloadInfo() {
 				.then(async () => {
 					await wait();
 					progress.current?.close();
-				});
+				})
+				.catch(e => console.error(e));
 		}
 	}
 

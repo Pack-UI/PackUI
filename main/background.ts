@@ -7,6 +7,8 @@ import path from 'path';
 import * as fss from 'fs';
 import Translator from './helpers/Translator';
 import * as process from 'process';
+import Logger from 'electron-log';
+import ImageServer from './imageServer';
 
 const configTemplate = require('../config/PackUI.config.json');
 
@@ -34,11 +36,11 @@ Object.assign(console, log.functions);
 const configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
 
 if (!fss.existsSync(configPath)) {
-	fss.writeFileSync(configPath, JSON.stringify(configTemplate), 'utf-8');
+	fss.writeFileSync(configPath, JSON.stringify(configTemplate), 'utf8');
 }
 
 // Copy language files
-new Translator().CopyTranslations(isProd);
+new Translator().CopyTranslations(isProd).catch(e => Logger.error(e));
 
 // Create temp folder if it doesn't exist
 const tempPath = path.join(app.getPath('temp'), isProd ? 'PackUI' : 'Dev.PackUI');
@@ -49,6 +51,9 @@ if (!fss.existsSync(tempPath)) {
 
 // Create communication channels
 CommunicationHandler();
+
+// Create server
+const imageServer = new ImageServer();
 
 (async () => {
 	await app.whenReady();
@@ -80,9 +85,12 @@ CommunicationHandler();
 		}
 	}
 	log.info(`\n\n\nNEW APPLICATION BOOT AT ${new Date(Date.now()).toISOString()}\n\n\n`);
+
+	imageServer.startServer();
 })();
 
 app.on('window-all-closed', () => {
+	imageServer.closeServer();
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}

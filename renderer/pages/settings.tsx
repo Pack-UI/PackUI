@@ -18,23 +18,32 @@ export default function Settings() {
 
 	if (ipcRenderer) {
 		if (tags.length === 0 && !fetchedSourceTags)
-			GetAPISourceTags(ipcRenderer).then(_ => {
-				setTags(_);
-				fetchedSourceTags = true;
-			});
+			GetAPISourceTags(ipcRenderer)
+				.then(_ => {
+					setTags(_);
+					fetchedSourceTags = true;
+				})
+				.catch(e => console.error(e));
 		if (availableLanguages == null)
-			ipcRenderer.invoke('translator.GetAvailableLanguages').then(_ =>
-				setAvailableLanguages(
-					_.map(lang => {
-						return {
-							value: lang,
-							label: lang.split('.')[0],
-							className: 'hover:bg-gray-950 px-2 py-1 rounded-lg',
-						};
-					})
+			ipcRenderer
+				.invoke('translator.GetAvailableLanguages')
+				.then(_ =>
+					setAvailableLanguages(
+						_.map(lang => {
+							return {
+								value: lang,
+								label: lang.split('.')[0],
+								className: 'hover:bg-gray-950 px-2 py-1 rounded-lg',
+							};
+						})
+					)
 				)
-			);
-		if (language == null) ipcRenderer.invoke('config.Read', 'language').then(_ => setLanguage(_));
+				.catch(e => console.error(e));
+		if (language == null)
+			ipcRenderer
+				.invoke('config.Read', 'language')
+				.then(_ => setLanguage(_))
+				.catch(e => console.error(e));
 	}
 
 	function SetCustomSongsFolder() {
@@ -52,7 +61,8 @@ export default function Settings() {
 						});
 						alert('Updated custom songs folder to ' + result.filePaths[0]);
 					}
-				});
+				})
+				.catch(e => console.error(e));
 		}
 	}
 

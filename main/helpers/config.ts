@@ -11,6 +11,7 @@ export default class Config {
 	customSongsFolder: string;
 	sources: string[];
 	language: string;
+	port: number;
 
 	constructor() {
 		configPath = path.join(app.getPath('userData'), 'PackUI.config.json');
@@ -23,15 +24,15 @@ export default class Config {
 			log.warn(`Setting unknown field "${key}"`);
 		}
 
-		const config = JSON.parse(fss.readFileSync(configPath, 'utf-8'));
+		const config = JSON.parse(fss.readFileSync(configPath, 'utf8'));
 		config[key] = value;
-		fss.writeFileSync(configPath, JSON.stringify(config), 'utf-8');
+		fss.writeFileSync(configPath, JSON.stringify(config), 'utf8');
 
 		this.LoadConfig();
 	}
 
 	private ReadConfig(path: string): Config {
-		return JSON.parse(fss.readFileSync(path, 'utf-8'));
+		return JSON.parse(fss.readFileSync(path, 'utf8'));
 	}
 
 	private LoadConfig() {
@@ -39,5 +40,6 @@ export default class Config {
 		this.customSongsFolder = config.customSongsFolder;
 		this.sources = config.sources;
 		this.language = config.language;
+		this.port = config.port;
 	}
 }

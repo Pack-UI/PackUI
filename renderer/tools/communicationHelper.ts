@@ -1,17 +1,21 @@
 import Song from '../../main/classes/song';
 import Pack from '../../main/classes/pack';
-import { IpcRenderer } from 'electron';
+import { ipcRenderer, IpcRenderer } from 'electron';
 
-async function GetAllSongs(ipcRenderer: IpcRenderer): Promise<Song[]> {
-	return ipcRenderer.invoke('fileParser.GetAllSongs');
+async function GetAllSongs(ipcRenderer: IpcRenderer, forceRescan: boolean = false): Promise<Song[]> {
+	return ipcRenderer.invoke('fileParser.GetAllSongs', forceRescan);
 }
 
-async function GetAllPacks(ipcRenderer: IpcRenderer): Promise<Pack[]> {
-	return ipcRenderer.invoke('fileParser.GetAllPacks');
+async function GetAllPacks(ipcRenderer: IpcRenderer, forceRescan: boolean = false): Promise<Pack[]> {
+	return ipcRenderer.invoke('fileParser.GetAllPacks', forceRescan);
 }
 
 function SetConfigField(ipcRenderer: IpcRenderer, key: string, value: any) {
 	ipcRenderer.send('config.Set', { key, value });
+}
+
+function GetConfigField(key: string): Promise<any> {
+	return ipcRenderer ? ipcRenderer.invoke('config.Get', key) : undefined;
 }
 
 function ClearTempFolder(ipcRenderer: IpcRenderer) {
@@ -32,4 +36,12 @@ async function VerifyPackIntegrity(ipcRenderer: IpcRenderer, pack: Pack): Promis
 	return ipcRenderer.invoke('packManager.VerifyPackIntegrity', pack);
 }
 
-export { GetAllSongs, GetAllPacks, SetConfigField, GetAPISourceTags, ClearTempFolder, VerifyPackIntegrity };
+export {
+	GetAllSongs,
+	GetAllPacks,
+	SetConfigField,
+	GetConfigField,
+	GetAPISourceTags,
+	ClearTempFolder,
+	VerifyPackIntegrity,
+};

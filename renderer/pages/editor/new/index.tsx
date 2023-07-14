@@ -14,12 +14,17 @@ export default function NewPack() {
 	const [difficulty, setDifficulty] = useState<number>(1);
 	const [page, setPage] = useState<number>(1);
 	const [songs, setSongs] = useState<Song[]>([]);
+	const [addedSongs, setAddedSongs] = useState<string[]>([]);
 
 	if (ipcRenderer) {
-		if (songs.length === 0) ipcRenderer.invoke('fileParser.GetAllSongs').then(_ => setSongs(_));
+		if (songs.length === 0)
+			ipcRenderer
+				.invoke('fileParser.GetAllSongs')
+				.then(_ => setSongs(_))
+				.catch(e => console.error(e));
 	}
 
-	const paginate = (array, page_size, page_number) => {
+	const paginate = (array: any[], page_size: number, page_number: number) => {
 		// human-readable page numbers usually start with 1, so we reduce 1 in the first argument
 		return array.slice((page_number - 1) * page_size, page_number * page_size);
 	};
@@ -41,17 +46,17 @@ export default function NewPack() {
 			</h1>
 			<hr />
 			<form className="mt-4 grid grid-cols-8 gap-4 rounded-lg bg-gray-800 p-4 text-right text-lg">
-				<label>
+				<label className="after:ml-0.5 after:text-red-500 after:content-['*']">
 					<Translator translation="editor.new.packname.label" />
 				</label>
 				<input type="text" className="col-span-3" />
 
-				<label>
+				<label className="after:ml-0.5 after:text-red-500 after:content-['*']">
 					<Translator translation="editor.new.author.label" />
 				</label>
 				<input type="text" className="col-span-3" />
 
-				<label>
+				<label className="after:ml-0.5 after:text-red-500 after:content-['*']">
 					<Translator translation="editor.new.artist.label" />
 				</label>
 				<input type="text" className="col-span-3" />
@@ -124,8 +129,20 @@ export default function NewPack() {
 				</h1>
 				<hr />
 				<div className="mt-2 grid grid-flow-row grid-cols-2 gap-2 text-center">
-					{paginate(songs, 8, page).map((song, index) => {
-						return <MapCard song={song} />;
+					{paginate(songs, 8, page).map((song: Song, index) => {
+						return (
+							<span
+								key={index}
+								aria-checked={addedSongs.includes(song.songPath)}
+								className="rounded-2xl opacity-70 hover:bg-green-900 aria-checked:bg-green-800 aria-checked:opacity-100 hover:aria-checked:bg-red-800"
+								onClick={e =>
+									addedSongs.includes(song.songPath)
+										? setAddedSongs(addedSongs.filter(songPath => songPath != song.songPath))
+										: setAddedSongs([...addedSongs, song.songPath])
+								}>
+								<MapCard song={song} />
+							</span>
+						);
 					})}
 				</div>
 				<div className="mx-auto flex w-1/5 justify-center gap-2 pt-4">
