@@ -35,6 +35,7 @@
 	"info.downloadAll": "Скачать всё",
 	"info.verifyIntegrity": "Проверить целостность",
 	"info.madeBy": "От",
+	"info.search.placeholder": "Разделяйте запросы запятыми",
 	"progress.installedCount": "Скачано %1$s из %2$s Карт",
 	"error.close": "Нажмите в любом месте, чтобы закрыть..."
 }

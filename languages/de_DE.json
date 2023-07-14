@@ -35,6 +35,7 @@
 	"info.downloadAll": "Alle herunterladen",
 	"info.verifyIntegrity": "Packintegrität überprüfen",
 	"info.madeBy": "von",
+	"info.search.placeholder": "Trenne jedes Stichwort mit einem Komma (,)",
 	"progress.installedCount": "%1$s von %2$s Songs installiert",
 	"error.close": "Zum Schließen irgendwo klicken..."
 }
