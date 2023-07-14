@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsFire, BsHash, BsRecordFill } from 'react-icons/bs';
 import Image from 'next/image';
 import Popup from 'reactjs-popup';
@@ -11,21 +11,28 @@ import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { VerifyPackIntegrity } from '@tools/communicationHelper';
 import Translator from '@tools/translator';
 import Link from 'next/link';
+import Song from '@classes/song';
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
+	let [songs, setSongs] = useState<Song[] | null>(null);
 	let [installedSongs, setInstalledSongs] = useState<boolean[] | null>(null);
 	let [count, setCount] = useState<number>(0);
+	let [searchInput, setSearchInput] = useState<string>('');
+
 	let indeterminateCheckbox = useRef<HTMLInputElement | null>(null);
 	let progress = useRef<PopupActions | null>(null);
 	let integrity = useRef<PopupActions | null>(null);
 
 	let checkboxRefs: HTMLInputElement[] = [];
 
+	// Set checkbox refs
 	let setRef = (ref: HTMLInputElement) => {
 		checkboxRefs.push(ref);
 		if (checkboxRefs.length === installedSongs.length) {
-			installedSongs.forEach((installed, index) => (checkboxRefs[index].checked = installed));
+			installedSongs.forEach((installed, index) => {
+				if (checkboxRefs[index]) checkboxRefs[index].checked = installed;
+			});
 
 			const installedSongAmount = installedSongs.filter(e => e).length;
 
@@ -43,6 +50,8 @@ export default function DownloadInfo() {
 	const id = Number(router.query['id']);
 	const date = new Date(Number(pack?.creationDate) * 1000);
 
+	// Get data
+	if (pack && songs == null) setSongs(pack.songs);
 	if (ipcRenderer) {
 		if (pack == null)
 			ipcRenderer.invoke('packManager.GetPackAtIndex', id).then(_ => (_ == undefined ? undefined : setPack(_)));
@@ -58,7 +67,7 @@ export default function DownloadInfo() {
 	function Sync(all: boolean = false) {
 		let download: boolean[] = [];
 		all
-			? (download = Array(checkboxRefs.length).fill(true))
+			? (download = Array(pack.songs.length).fill(true))
 			: checkboxRefs.forEach(checkbox => download.push(checkbox.checked));
 		setCount(download.filter(e => e).length);
 
@@ -85,7 +94,42 @@ export default function DownloadInfo() {
 		router.reload();
 	}
 
-	if (!pack || !installedSongs) {
+	// Search
+	useEffect(() => {
+		function GetSearchQuery(song: Song): string {
+			return `${song.title},${song.artist},${song.author}`.toLowerCase();
+		}
+
+		const delayDebounceFn = setTimeout(() => {
+			if (!pack) return;
+			if (searchInput == '' && songs.length == pack.songs.length) return;
+
+			if (searchInput == '') setSongs(pack.songs);
+			else
+				setSongs(
+					pack.songs.filter(song => {
+						return searchInput
+							.toLowerCase()
+							.split(',')
+							.map(search => {
+								// for each search, check all fields
+								return (
+									GetSearchQuery(song)
+										.split(',')
+										.filter(query => query.trim().includes(search.trim())).length > 0
+								);
+							})
+							.every(e => e);
+					})
+				);
+		}, 250);
+
+		return () => clearTimeout(delayDebounceFn);
+	}, [searchInput]);
+
+	// If loading return spinner
+	if (!pack || !installedSongs || !songs) {
+		Translator('info.search.placeholder'); // This is needed for some reason
 		return (
 			<div className="m-16 text-white">
 				<Image
@@ -198,9 +242,9 @@ export default function DownloadInfo() {
 			</div>
 
 			<div className="mt-4 flex-1 rounded-lg bg-white bg-opacity-5 p-2">
-				<div className="ml-1 p-2">
+				<div className="ml-1 flex justify-between p-2">
 					<input
-						className="h-5 w-5 accent-green-500 transition-all duration-100 ease-in-out hover:scale-90"
+						className="hover:scale-9 my-auto h-5 w-5 accent-green-500 transition-all duration-100 ease-in-out"
 						type="checkbox"
 						ref={indeterminateCheckbox}
 						onChange={() => {
@@ -215,9 +259,15 @@ export default function DownloadInfo() {
 							}
 						}}
 					/>
+					<input
+						className="my-auto h-7 w-1/2 rounded-lg bg-gray-700 p-2 align-middle text-lg font-bold"
+						type="text"
+						onChange={e => setSearchInput(e.target.value)}
+						placeholder={Translator('info.search.placeholder')}
+					/>
 				</div>
 				<div className="grid grid-flow-row grid-cols-1 rounded-lg border-2 border-white border-opacity-10 p-2">
-					{pack.songs.map((song, i) => {
+					{songs.map((song, i) => {
 						return (
 							<div
 								key={i}

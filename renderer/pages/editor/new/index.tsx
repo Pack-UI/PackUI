@@ -26,23 +26,11 @@ export default function NewPack() {
 
 	const handleDelete = i => {
 		let newTags = tags.filter((tag, index) => index !== i);
-		SetConfigField(
-			ipcRenderer,
-			'sources',
-			newTags.map(_tag => _tag['text'])
-		);
-
 		setTags(newTags);
 	};
 
 	const handleAddition = tag => {
 		let newTags = [...tags, tag];
-		SetConfigField(
-			ipcRenderer,
-			'sources',
-			newTags.map(_tag => _tag['text'])
-		);
-
 		setTags(newTags);
 	};
 
@@ -125,7 +113,7 @@ export default function NewPack() {
 					/>
 				</div>
 
-				<button className="col-start-8 rounded-md bg-gray-700 p-2 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(100,100,100,0.15)]">
+				<button className="col-start-8 rounded-md bg-gray-700 p-2 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] transition-all duration-100 ease-in-out hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(100,100,100,0.15)]">
 					<Translator translation="editor.new.save.button" />
 				</button>
 			</form>
