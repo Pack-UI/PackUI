@@ -7,6 +7,7 @@ import { jsonrepair } from 'jsonrepair';
 import log from 'electron-log';
 import Config from './config';
 import { app } from 'electron';
+import utils from './utils';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -71,47 +72,7 @@ export default class FileParser {
 					// Check if folder is pack
 					const packFiles = files.filter(file => file.split('.').pop() === 'pack');
 					if (packFiles.length !== 0) {
-						const rawData = await fs.readFile(path.join(folderPath, packFiles[0]), 'utf-8');
-
-						const packConfig = {};
-
-						rawData.split(/\r?\n/).forEach(line => {
-							let keyValuePair = line.split('=', 2);
-							packConfig[keyValuePair[0].trim()] = keyValuePair[1].trim();
-						});
-
-						// Check if preview image exists
-						const iconExists =
-							'icon' in packConfig
-								? fss.existsSync(path.join(folderPath, <string>packConfig['icon']))
-								: false;
-						const coverExists =
-							'image' in packConfig
-								? fss.existsSync(path.join(folderPath, <string>packConfig['image']))
-								: false;
-
-						const lastModified = new Date(Date.now());
-						// TODO: Get last modified date from .pack file
-
-						const songs = await this.GetAllSongs(folderPath, forceRescan);
-
-						let pack = new Pack(
-							folder,
-							packConfig['title'] || null,
-							packConfig['description'] || null,
-							packConfig['author'] || null,
-							packConfig['artist'] || null,
-							packConfig['difficulty'] || null,
-							packConfig['color'] || null,
-							fss.statSync(path.join(folderPath, packFiles[0])).birthtime || null,
-							lastModified || null,
-							songs || []
-						);
-
-						iconExists ? (pack.iconImagePath = packConfig['icon']) : null;
-						coverExists ? (pack.coverImagePath = packConfig['image']) : null;
-
-						packs.push(pack);
+						packs.push(await this.GetPackAtPath(folderPath));
 					}
 				})
 			);
@@ -127,12 +88,53 @@ export default class FileParser {
 		});
 	}
 
+	async GetPackAtPath(packPath: string, forceRescan: boolean = false) {
+		const packFile = (await fs.readdir(packPath)).filter(file => file.split('.').pop() === 'pack')[0];
+		const rawData = await fs.readFile(path.join(packPath, packFile), 'utf-8');
+
+		const packConfig = {};
+
+		rawData.split(/\r?\n/).forEach(line => {
+			let keyValuePair = line.split('=', 2);
+			packConfig[keyValuePair[0].trim()] = keyValuePair[1].trim();
+		});
+
+		// Check if preview image exists
+		const iconExists =
+			'icon' in packConfig ? fss.existsSync(path.join(packPath, <string>packConfig['icon'])) : false;
+		const coverExists =
+			'image' in packConfig ? fss.existsSync(path.join(packPath, <string>packConfig['image'])) : false;
+
+		const lastModified = new Date(Date.now());
+		// TODO: Get last modified date from .pack file
+
+		const songs = await this.GetAllSongs(packPath, forceRescan);
+
+		let pack = new Pack(
+			utils.getValidFileName(packConfig['title']),
+			packConfig['title'] || null,
+			packConfig['description'] || null,
+			packConfig['author'] || null,
+			packConfig['artist'] || null,
+			packConfig['difficulty'] || null,
+			packConfig['color'] || null,
+			fss.statSync(path.join(packPath, packFile)).birthtime || null,
+			lastModified || null,
+			songs || []
+		);
+
+		iconExists ? (pack.iconImagePath = packConfig['icon']) : null;
+		coverExists ? (pack.coverImagePath = packConfig['image']) : null;
+
+		return pack;
+	}
+
 	async ClearTempFolder() {
 		await fs.rm(path.join(app.getPath('temp'), isProd ? 'PackUI' : 'Dev.PackUI'), { recursive: true, force: true });
 	}
 
 	async GetCacheFromPack(packPath: string) {
-		return new Promise<any>(async resolve => {
+		return new Promise<any[]>(async resolve => {
 			const cachePath = path.join(packPath, 'PackUI.cache');
 
 			// Check if path is valid
@@ -158,7 +160,7 @@ export default class FileParser {
 			if (this.scan.songs[rootPath]) {
 				const endTime = performance.now(); // Timer
 				console.log(
-					`Loaded ${this.scan.songs[rootPath].length} pack(s) in ${Math.ceil(
+					`Loaded ${this.scan.songs[rootPath].length} song(s) in ${Math.ceil(
 						endTime - startTime
 					)}ms from cache`
 				);

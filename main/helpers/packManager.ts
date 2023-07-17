@@ -9,8 +9,10 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
 import fss from 'fs';
-import FileParser from '../helpers/fileParser';
+import FileParser from './fileParser';
 import { hashElement } from 'folder-hash';
+import utils from './utils';
+import archiver from 'archiver';
 
 const decompress = require('decompress');
 const downloader = require('download');
@@ -28,11 +30,11 @@ export default class PackManager {
 		this.lastSources = this.sources;
 	}
 
-	GetPackAtIndex(index: number) {
+	GetPackAtIndex(index: number): Pack {
 		return this.packs.length > index ? this.packs[index] : undefined;
 	}
 
-	async GetDownloadablePacks(forceRefresh: boolean = false) {
+	async GetDownloadablePacks(forceRefresh: boolean = false): Promise<Pack[]> {
 		// Check if packs have not changed
 		if (this.packs.length == this.sources.length && this.lastSources == this.sources && !forceRefresh) {
 			return this.packs;
@@ -102,6 +104,8 @@ export default class PackManager {
 	}
 
 	async DownloadSongsFromPack(index: number, downloads: boolean[], redownload = false) {
+		const customSongsFolder = new Config().customSongsFolder;
+
 		return (
 			new Promise<void>(async (resolve, reject) => {
 				const pack = this.GetPackAtIndex(index);
@@ -113,7 +117,7 @@ export default class PackManager {
 
 				if (redownload) {
 					await this.RemovePackFolder(
-						path.join(new Config().customSongsFolder, pack.title.replace(/[\/\\:*?"<>]/g, ''))
+						path.join(customSongsFolder, utils.getValidFileName(pack.title.replace(/[\/\\:*?"<>]/g, '')))
 					);
 				}
 
@@ -139,7 +143,10 @@ export default class PackManager {
 							Logger.log(`Skipping download, instead using ${songZipName} from cache`);
 						}
 
-						const songPath = path.join(packPath, song.title.replace(/[\/\\:*?"<>]/g, ''));
+						const songPath = path.join(
+							packPath,
+							utils.getValidFileName(song.title.replace(/[\/\\:*?"<>]/g, ''))
+						);
 
 						await decompress(path.join(downloadPath, songZipName), songPath).catch(e =>
 							Logger.warn(`Something went wrong while decompressing "${song.title}, skipping..."`)
@@ -151,7 +158,7 @@ export default class PackManager {
 
 						cache.push({
 							type: 'folder',
-							name: song.title.replace(/[\/\\:*?"<>]/g, ''),
+							name: utils.getValidFileName(song.title.replace(/[\/\\:*?"<>]/g, '')),
 							hash: folderHash.hash,
 						});
 
@@ -170,13 +177,49 @@ export default class PackManager {
 		return fs.rm(packPath, { recursive: true, force: true });
 	}
 
-	async CreatePackFolder(pack: Pack) {
+	async CreatePackFolder(pack: Pack): Promise<string> {
+		const customSongsFolder = new Config().customSongsFolder;
+
 		return new Promise<string>(async (resolve, reject) => {
-			const packTitle = pack.title.replace(/[\/\\:*?"<>]/g, '');
-			const packPath = path.join(new Config().customSongsFolder, packTitle);
+			const packTitle = utils.getValidFileName(pack.title.replace(/[\/\\:*?"<>]/g, ''));
+			const packPath = path.join(customSongsFolder, packTitle);
 
 			if (!fss.existsSync(packPath)) {
 				await fs.mkdir(packPath);
+			}
+
+			// Download pack cover and icon
+			if (pack.coverImagePath != '') {
+				await downloader(pack.coverImagePath, packPath)
+					.then(_ => {
+						fs.rename(
+							path.join(packPath, pack.coverImagePath.split('/').pop().split('#')[0].split('?')[0]),
+							path.join(
+								packPath,
+								`cover.${pack.coverImagePath.substring(pack.coverImagePath.lastIndexOf('.') + 1)}`
+							)
+						);
+					})
+					.catch(e => {
+						Logger.error(`failed to download "${pack.coverImagePath}", skipping...`, e);
+						return;
+					});
+			}
+			if (pack.iconImagePath != '') {
+				await downloader(pack.iconImagePath, packPath)
+					.then(_ => {
+						fs.rename(
+							path.join(packPath, pack.iconImagePath.split('/').pop().split('#')[0].split('?')[0]),
+							path.join(
+								packPath,
+								`icon.${pack.iconImagePath.substring(pack.iconImagePath.lastIndexOf('.') + 1)}`
+							)
+						);
+					})
+					.catch(e => {
+						Logger.error(`failed to download "${pack.iconImagePath}", skipping...`, e);
+						return;
+					});
 			}
 
 			// *.pack
@@ -189,8 +232,8 @@ export default class PackManager {
 						`difficulty = ${pack.difficulty}\n` +
 						`description = ${pack.description}\n` +
 						`color = ${pack.color}\n` +
-						`image = ${pack.coverImagePath}\n` +
-						`icon = ${pack.iconImagePath}`,
+						`image = cover.${pack.coverImagePath.substring(pack.coverImagePath.lastIndexOf('.') + 1)}\n` +
+						`icon = icon.${pack.iconImagePath.substring(pack.iconImagePath.lastIndexOf('.') + 1)}`,
 					{ flag: 'wx' }
 				)
 				.catch(() => {});
@@ -216,18 +259,20 @@ export default class PackManager {
 		});
 	}
 
-	async VerifyPackIntegrity(pack: Pack) {
+	async VerifyPackIntegrity(pack: Pack): Promise<number> {
+		const customSongsFolder = new Config().customSongsFolder;
+
 		return new Promise<number>(async (resolve, reject) => {
 			let songsFailed = 0;
 
-			const packPath = path.join(new Config().customSongsFolder, pack.title.replace(/[\/\\:*?"<>]/g, ''));
+			const packPath = path.join(customSongsFolder, pack.title.replace(/[\/\\:*?"<>]/g, ''));
 
 			if (!fss.existsSync(packPath)) {
 				Logger.error(`Invalid path ${packPath}`);
 				reject();
 			}
 
-			const cache = await new FileParser().GetCacheFromPack(packPath).catch(() => reject());
+			const cache = await new FileParser().GetCacheFromPack(packPath);
 
 			await Promise.all(
 				cache.map(async (cacheElement: any, index: number) => {
@@ -266,6 +311,133 @@ export default class PackManager {
 			);
 
 			resolve(songsFailed);
+		});
+	}
+
+	async GeneratePack(packData: any): Promise<boolean> {
+		// TODO: Use pack instead of any
+		const customSongsFolder = new Config().customSongsFolder;
+
+		return new Promise<boolean>(async (resolve, reject) => {
+			const pack = new Pack(
+				packData.packPath || '/',
+				packData.title,
+				packData.description,
+				packData.author,
+				packData.artist,
+				packData.difficulty,
+				packData.color,
+				packData.creationDate,
+				packData.lastUpdate,
+				packData.songs,
+				packData.version,
+				packData.tags,
+				packData.coverImagePath,
+				packData.iconImagePath
+			);
+
+			if (pack.packPath == '/') {
+				pack.packPath = utils.getValidFileName(pack.title.replace(/[\/\\:*?"<>]/g, ''));
+			}
+
+			let folderPath = path.join(customSongsFolder, pack.packPath);
+			if (!fss.existsSync(folderPath)) {
+				Logger.log(`Pack not found at %c"${folderPath}"%c, creation new pack`, 'color: gray', 'color: unset');
+				folderPath = await this.CreatePackFolder(pack);
+			} else {
+				Logger.log('Pack already exists, updating');
+
+				const packFileName = folderPath.split('\\').pop() + '.pack';
+
+				// Update *.pack
+				await fs
+					.writeFile(
+						path.join(folderPath, packFileName),
+						`title = ${pack.title}\n` +
+							`author = ${pack.author}\n` +
+							`artist = ${pack.artist}\n` +
+							`difficulty = ${pack.difficulty}\n` +
+							`description = ${pack.description}\n` +
+							`color = ${pack.color}\n` +
+							`image = cover.${
+								pack.coverImagePath.substring(pack.coverImagePath.lastIndexOf('.') + 1) || 'png'
+							}\n` +
+							`icon = icon.${
+								pack.iconImagePath.substring(pack.iconImagePath.lastIndexOf('.') + 1) || 'png'
+							}`,
+						{ flag: 'w' }
+					)
+					.catch(() => {});
+			}
+
+			// Add songs to pack
+			const packFileName = folderPath.split('\\').pop() + '.pack';
+			const fileHash = await hashElement(path.join(folderPath, packFileName));
+			let cache = [
+				{
+					type: 'version',
+					version: pack.version,
+				},
+				{
+					type: 'file',
+					name: `${packFileName}`,
+					hash: fileHash.hash,
+				},
+			];
+
+			await Promise.all(
+				pack.songs.map(async (song, index) => {
+					const originPath = path.join(customSongsFolder, song.songPath);
+					const destinationPath = path.join(folderPath, song.songPath);
+
+					// Remove all dirs
+					(await fs.readdir(folderPath, { withFileTypes: true }))
+						.filter(dir => dir.isDirectory())
+						.map(dir => fss.rmSync(path.join(folderPath, dir.name), { recursive: true, force: true }));
+
+					await fs.mkdir(destinationPath).catch(_ => undefined);
+					await fs.cp(originPath, destinationPath, { recursive: true });
+
+					const folderHash = await hashElement(originPath, {
+						files: { include: '*' },
+					});
+
+					cache.push({
+						type: 'folder',
+						name: song.songPath,
+						hash: folderHash.hash,
+					});
+				})
+			);
+
+			await fs.writeFile(path.join(folderPath, 'PackUI.cache'), JSON.stringify(cache));
+
+			resolve(true);
+		});
+	}
+
+	async ExportPack(data: any) {
+		return new Promise<void>((resolve, reject) => {
+			const output = fss.createWriteStream(data.saveTo);
+			const archive = archiver('zip', {
+				zlib: { level: 9 },
+			});
+
+			output.on('close', function () {
+				console.log(archive.pointer() + ' total bytes');
+				console.log('archiver has been finalized and the output file descriptor has closed.');
+			});
+
+			archive.on('error', function (err) {
+				throw err;
+			});
+
+			archive.pipe(output);
+
+			// append files from a sub-directory, putting its contents at the root of archive
+			archive.directory(path.join(new Config().customSongsFolder, data.packPath), false);
+
+			archive.finalize().then(resolve).catch(reject);
 		});
 	}
 }

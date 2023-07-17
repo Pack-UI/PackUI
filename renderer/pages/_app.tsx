@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import Navbar from '@components/navbar';
 import ErrorPopup from '@components/errorPopup';
 import { useRouter } from 'next/router';
+import { Head } from 'next/document';
 
 const isProd = process.env.NODE_ENV === 'production';
 

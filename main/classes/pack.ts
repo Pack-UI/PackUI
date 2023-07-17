@@ -42,9 +42,9 @@ export default class Pack {
 		this.creationDate = creationDate;
 		this.lastUpdate = lastUpdate;
 		this.songs = songs;
-		this.version = version;
-		this.tags = tags;
-		this.coverImagePath = coverImagePath;
-		this.iconImagePath = iconImagePath;
+		this.version = version || '1.0.0';
+		this.tags = tags || [];
+		this.coverImagePath = coverImagePath || '';
+		this.iconImagePath = iconImagePath || '';
 	}
 }

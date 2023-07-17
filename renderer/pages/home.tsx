@@ -88,7 +88,7 @@ export default function Home() {
 					)}
 				</div>
 			</div>
-			<Link href="/editor/new">
+			<Link href="/editor/edit">
 				<div className="absolute bottom-4 right-4 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-green-600">
 					<BsPlus className="h-12 w-12" aria-hidden="true" />
 				</div>
