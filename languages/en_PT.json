@@ -15,7 +15,7 @@
 	"settings.packDownloadApis.label": "Pack download APIs",
 	"settings.packDownloadApis.placeholder": "Strike the enter key, matey, to summon a fresh API to our crew!",
 	"editor.title": "Editor",
-	"editor.new.title": "Pack Creator",
+	"editor.new.title": "Pack Editor",
 	"editor.new.packname.label": "Pack name",
 	"editor.new.author.label": "Author",
 	"editor.new.artist.label": "Artist(s)",
