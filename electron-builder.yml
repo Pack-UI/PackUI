@@ -12,4 +12,5 @@ files:
 extraFiles:
     - from: .
       filter: languages
+artifactName: PackUI Setup ${version} (${os} ${arch}).exe
 publish: null

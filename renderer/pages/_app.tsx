@@ -6,6 +6,8 @@ import ErrorPopup from '@components/errorPopup';
 import { useRouter } from 'next/router';
 import { NotificationContainer } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
+import { ipcRenderer } from 'electron';
+import Notifications from '@tools/notifications';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -27,6 +29,22 @@ function PackUI({ Component, pageProps }: AppProps) {
 
 		// Run everytime on path change
 	}, [router.asPath]);
+
+	if (ipcRenderer) {
+		ipcRenderer.invoke('utils.CheckUpdate').then(update =>
+			update.available
+				? Notifications.info(
+						`${update.currentVersion} -> ${update.latestVersion}`,
+						'An update is available',
+						400,
+						() => {
+							console.log('sus');
+						},
+						true
+				  )
+				: undefined
+		);
+	}
 
 	return (
 		<>

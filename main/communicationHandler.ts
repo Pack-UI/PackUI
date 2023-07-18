@@ -38,6 +38,7 @@ export default function communicationHandler() {
 	/* Utils */
 	ipcMain.handle('utils.ShowOpenDialog', (event, data: OpenDialogOptions) => utils.ShowOpenDialog(data));
 	ipcMain.handle('utils.ShowSaveDialog', (event, data: SaveDialogOptions) => utils.ShowSaveDialog(data));
+	ipcMain.handle('utils.CheckUpdate', (event, _) => utils.CheckUpdate());
 
 	/* Pack Manager */
 	const packManager = new PackManager();
@@ -55,7 +56,7 @@ export default function communicationHandler() {
 	ipcMain.handle('packManager.VerifyPackIntegrity', (event, data: Pack) => packManager.VerifyPackIntegrity(data));
 	ipcMain.handle('packManager.GeneratePack', (event, data: object) => packManager.GeneratePack(data));
 	ipcMain.handle('packManager.ExportPack', (event, data: object) => packManager.ExportPack(data));
-	ipcMain.handle('packManager.ImportPack', (event, packPath: string) => packManager.ImportPack(packPath));
+	ipcMain.handle('packManager.ImportPack', (event, packPaths: string[]) => packManager.ImportPack(packPaths));
 	ipcMain.handle('packManager.DeletePack', (event, packPath: string) => packManager.DeletePack(packPath));
 
 	/* Translator */
