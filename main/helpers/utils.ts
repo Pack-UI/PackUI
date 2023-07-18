@@ -1,4 +1,5 @@
 import { dialog, OpenDialogOptions, OpenDialogReturnValue, SaveDialogOptions, SaveDialogReturnValue } from 'electron';
+import Logger from 'electron-log';
 
 export default class utils {
 	static async ShowOpenDialog(options: OpenDialogOptions): Promise<OpenDialogReturnValue> {

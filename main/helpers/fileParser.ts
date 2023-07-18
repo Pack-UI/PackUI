@@ -8,6 +8,7 @@ import log from 'electron-log';
 import Config from './config';
 import { app } from 'electron';
 import utils from './utils';
+import Logger from 'electron-log';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -29,7 +30,7 @@ export default class FileParser {
 		if (this.scan && !forceRescan) {
 			if (this.scan.packs.length > 0) {
 				const endTime = performance.now(); // Timer
-				console.log(
+				Logger.log(
 					`Loaded ${this.scan.packs.length} pack(s) in ${Math.ceil(endTime - startTime)}ms from cache`
 				);
 
@@ -72,7 +73,7 @@ export default class FileParser {
 					// Check if folder is pack
 					const packFiles = files.filter(file => file.split('.').pop() === 'pack');
 					if (packFiles.length !== 0) {
-						packs.push(await this.GetPackAtPath(folderPath));
+						packs.push(await this.GetPackAtPath(folderPath, forceRescan));
 					}
 				})
 			);

@@ -5,6 +5,7 @@ import { ClearTempFolder, GetAPISourceTags, SetConfigField } from '@tools/commun
 import Dropdown from 'react-dropdown';
 import { useRouter } from 'next/router';
 import Translator from '@tools/translator';
+import Notifications from '@tools/notifications';
 
 const delimiters = [9, 13, 188]; // Keycodes for tab (\t), enter (\n) and comma (,)
 
@@ -23,7 +24,7 @@ export default function Settings() {
 					setTags(_);
 					fetchedSourceTags = true;
 				})
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		if (availableLanguages == null)
 			ipcRenderer
 				.invoke('translator.GetAvailableLanguages')
@@ -38,12 +39,12 @@ export default function Settings() {
 						})
 					)
 				)
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		if (language == null)
 			ipcRenderer
 				.invoke('config.Read', 'language')
 				.then(_ => setLanguage(_))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 	}
 
 	function SetCustomSongsFolder() {
@@ -55,14 +56,14 @@ export default function Settings() {
 				})
 				.then((result: OpenDialogReturnValue) => {
 					if (!result.canceled) {
+						Notifications.success(`Set custom songs folder to:\n${result.filePaths[0]}`);
 						ipcRenderer.send('config.Set', {
 							key: 'customSongsFolder',
 							value: result.filePaths[0],
 						});
-						alert('Updated custom songs folder to ' + result.filePaths[0]);
 					}
 				})
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		}
 	}
 
@@ -89,6 +90,7 @@ export default function Settings() {
 	};
 
 	const handleLanguageChange = lang => {
+		Notifications.success(`Set language to ${lang.label}`);
 		ipcRenderer.send('config.Set', { key: 'language', value: lang.label });
 		ipcRenderer.send('translator.ReloadTranslations');
 		router.reload();

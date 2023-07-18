@@ -20,7 +20,9 @@
 			"@classes/*": ["main/classes/*"],
 			"@helpers/*": ["main/helpers/*"],
 			"@tools/*": ["renderer/tools/*"]
-		}
+		},
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true
 	},
 	"exclude": ["node_modules", "renderer/next.config.js", "app", "dist"]
 }

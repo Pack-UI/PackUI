@@ -12,6 +12,7 @@ import { VerifyPackIntegrity } from '@tools/communicationHelper';
 import Translator from '@tools/translator';
 import Link from 'next/link';
 import Song from '@classes/song';
+import Notifications from '@tools/notifications';
 
 export default function DownloadInfo() {
 	let [pack, setPack] = useState<Pack | null>(null);
@@ -57,7 +58,7 @@ export default function DownloadInfo() {
 			ipcRenderer
 				.invoke('packManager.GetPackAtIndex', id)
 				.then(_ => (_ == undefined ? undefined : setPack(_)))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		if (installedSongs == null && pack != null)
 			ipcRenderer
 				.invoke('fileParser.GetCacheFromPack', pack)
@@ -90,7 +91,7 @@ export default function DownloadInfo() {
 					await wait();
 					progress.current?.close();
 				})
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		}
 	}
 

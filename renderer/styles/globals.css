@@ -43,3 +43,9 @@ textarea:hover {
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 }
+
+/* Move notifications down */
+.notification-container {
+	margin-top: 5% !important;
+	padding-bottom: 1% !important;
+}

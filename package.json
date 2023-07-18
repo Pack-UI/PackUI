@@ -16,8 +16,10 @@
 		"prepare": "husky install"
 	},
 	"devDependencies": {
+		"@babel/plugin-proposal-decorators": "^7.22.7",
 		"@headlessui/react": "^1.7.15",
 		"@heroicons/react": "^2.0.18",
+		"@magna_shogun/catch-decorator": "^1.0.1",
 		"@ramonak/react-progress-bar": "^5.0.3",
 		"@types/archiver": "^5",
 		"@types/node": "^18.11.18",
@@ -51,6 +53,7 @@
 		"react-dom": "^18.2.0",
 		"react-dropdown": "^1.11.0",
 		"react-icons": "^4.9.0",
+		"react-notifications": "^1.7.4",
 		"react-tag-input": "^6.8.1",
 		"reactjs-popup": "^2.0.5",
 		"sprintf-js": "^1.1.2",

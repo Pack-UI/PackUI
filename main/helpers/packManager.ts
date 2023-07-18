@@ -13,6 +13,7 @@ import FileParser from './fileParser';
 import { hashElement } from 'folder-hash';
 import utils from './utils';
 import archiver from 'archiver';
+import { Catch, CatchAll } from '@magna_shogun/catch-decorator';
 
 const decompress = require('decompress');
 const downloader = require('download');
@@ -30,10 +31,12 @@ export default class PackManager {
 		this.lastSources = this.sources;
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	GetPackAtIndex(index: number): Pack {
 		return this.packs.length > index ? this.packs[index] : undefined;
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async GetDownloadablePacks(forceRefresh: boolean = false): Promise<Pack[]> {
 		// Check if packs have not changed
 		if (this.packs.length == this.sources.length && this.lastSources == this.sources && !forceRefresh) {
@@ -103,6 +106,7 @@ export default class PackManager {
 		});
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async DownloadSongsFromPack(index: number, downloads: boolean[], redownload = false) {
 		const customSongsFolder = new Config().customSongsFolder;
 
@@ -173,10 +177,12 @@ export default class PackManager {
 		);
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	RemovePackFolder(packPath: string) {
 		return fs.rm(packPath, { recursive: true, force: true });
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async CreatePackFolder(pack: Pack): Promise<string> {
 		const customSongsFolder = new Config().customSongsFolder;
 
@@ -259,6 +265,7 @@ export default class PackManager {
 		});
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async VerifyPackIntegrity(pack: Pack): Promise<number> {
 		const customSongsFolder = new Config().customSongsFolder;
 
@@ -314,6 +321,7 @@ export default class PackManager {
 		});
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async GeneratePack(packData: any): Promise<boolean> {
 		// TODO: Use pack instead of any
 		const customSongsFolder = new Config().customSongsFolder;
@@ -416,6 +424,7 @@ export default class PackManager {
 		});
 	}
 
+	@CatchAll((err, ctx) => Logger.error(err))
 	async ExportPack(data: any) {
 		return new Promise<void>((resolve, reject) => {
 			const output = fss.createWriteStream(data.saveTo);
@@ -439,5 +448,45 @@ export default class PackManager {
 
 			archive.finalize().then(resolve).catch(reject);
 		});
+	}
+
+	@CatchAll((err, ctx) => Logger.error(err))
+	async ImportPack(packPaths: string[]) {
+		await Promise.all(
+			packPaths.map(async packPath => {
+				return new Promise<boolean>(async (resolve, reject) => {
+					// Get pack name from zip name
+					let packName = packPath.split(path.sep).pop().split('.')[0];
+
+					// Check if pack with name already exists
+					if (fss.existsSync(path.join(new Config().customSongsFolder, packName))) {
+						reject(`Pack "${packName}" already exists, try deleting it first`);
+					}
+
+					// Unzip pack
+					await decompress(packPath, path.join(new Config().customSongsFolder, packName)).catch(e => {
+						reject(`Something went wrong while decompressing "${packName}"`);
+					});
+
+					resolve(true);
+				}).catch(e => Logger.error(e));
+			})
+		);
+
+		// Reload pack cache
+		return new FileParser().GetAllPacks(true);
+	}
+
+	@CatchAll((err, ctx) => Logger.error(err))
+	async DeletePack(packPath: string) {
+		if (packPath == path.sep || packPath == '') return;
+
+		// Delete pack
+		await fs
+			.rm(path.join(new Config().customSongsFolder, packPath), { recursive: true, force: true })
+			.catch(e => Logger.error(e));
+
+		// Reload pack cache
+		return new FileParser().GetAllPacks(true);
 	}
 }

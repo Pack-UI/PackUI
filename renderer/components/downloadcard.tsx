@@ -8,6 +8,7 @@ import Popup from 'reactjs-popup';
 import { useRef, useState } from 'react';
 import { PopupActions } from 'reactjs-popup/dist/types';
 import Link from 'next/link';
+import Notifications from '@tools/notifications';
 
 interface Props {
 	pack: Pack;
@@ -36,7 +37,7 @@ export default function DownloadCard(props: Props) {
 					await wait();
 					progress.current?.close();
 				})
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 	};
 
 	return (

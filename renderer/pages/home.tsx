@@ -10,6 +10,7 @@ import { BsPlus } from 'react-icons/bs';
 import Link from 'next/link';
 import { ipcRenderer } from 'electron';
 import { BiRefresh } from 'react-icons/bi';
+import Notifications from '@tools/notifications';
 
 export default function Home() {
 	let [songs, setSongs] = useState<Song[] | null>(null);
@@ -19,23 +20,50 @@ export default function Home() {
 		if (songs == null)
 			GetAllSongs(ipcRenderer)
 				.then(_ => setSongs(_))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		if (packs == null && songs != null)
 			GetAllPacks(ipcRenderer)
 				.then(_ => setPacks(_))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 	}
 
 	const refreshSongs = () => {
+		Notifications.info('Reloading songs');
 		GetAllSongs(ipcRenderer, true)
 			.then(_ => setSongs(_))
-			.catch(e => console.error(e));
+			.catch(e => Notifications.error(e));
 	};
 
 	const refreshPacks = () => {
+		Notifications.info('Reloading packs');
 		GetAllPacks(ipcRenderer, true)
 			.then(_ => setPacks(_))
-			.catch(e => console.error(e));
+			.catch(e => Notifications.error(e));
+	};
+
+	const importPack = () => {
+		ipcRenderer
+			.invoke('utils.ShowOpenDialog', {
+				title: 'Import pack',
+				message: 'Import pack',
+				properties: ['openFile', 'multiSelections'],
+				filters: [{ name: 'Pack', extensions: ['zip'] }],
+			})
+			.then(saveTo => {
+				if (!saveTo.canceled) {
+					Notifications.info('Starting pack import');
+					ipcRenderer
+						.invoke('packManager.ImportPack', saveTo.filePaths)
+						.then(_ => {
+							ipcRenderer.invoke('fileParser.GetAllSongs', true).then(_ => setSongs(_));
+							ipcRenderer.invoke('fileParser.GetAllPacks', true).then(_ => setPacks(_));
+							Notifications.success('Finished import');
+						})
+						.catch(_ => {
+							Notifications.error('Something went wrong while importing');
+						});
+				}
+			});
 	};
 
 	return (
@@ -66,6 +94,11 @@ export default function Home() {
 			</div>
 			<div className="h-full w-full items-center justify-center rounded-lg border-2  border-white p-8 text-center">
 				<h1 className="relative mb-2">
+					<button
+						className="absolute -top-1 left-0 mr-2 rounded-md bg-gray-700 px-1 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] transition-all duration-100 ease-in-out hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(100,100,100,0.15)]"
+						onClick={importPack}>
+						<p className="px-2 text-lg">Import</p>
+					</button>
 					<Translator translation="home.packs" />
 					<BiRefresh
 						className="absolute right-0 top-0 h-8 w-8 cursor-pointer opacity-20 transition-all duration-200 ease-in-out hover:-rotate-180 hover:opacity-100"

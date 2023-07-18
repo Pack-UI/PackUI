@@ -55,6 +55,8 @@ export default function communicationHandler() {
 	ipcMain.handle('packManager.VerifyPackIntegrity', (event, data: Pack) => packManager.VerifyPackIntegrity(data));
 	ipcMain.handle('packManager.GeneratePack', (event, data: object) => packManager.GeneratePack(data));
 	ipcMain.handle('packManager.ExportPack', (event, data: object) => packManager.ExportPack(data));
+	ipcMain.handle('packManager.ImportPack', (event, packPath: string) => packManager.ImportPack(packPath));
+	ipcMain.handle('packManager.DeletePack', (event, packPath: string) => packManager.DeletePack(packPath));
 
 	/* Translator */
 	const translator = new Translator();

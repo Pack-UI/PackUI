@@ -5,6 +5,7 @@ import { ipcRenderer, OpenDialogOptions } from 'electron';
 import Song from '@classes/song';
 import MapCard from '@components/mapcard';
 import { useRouter } from 'next/router';
+import Notifications from '@tools/notifications';
 
 interface Pack {
 	packPath: string;
@@ -27,7 +28,7 @@ const delimiters = [9, 13, 188]; // Keycodes for tab (\t), enter (\n) and comma 
 
 export default function NewPack() {
 	const [page, setPage] = useState<number>(1);
-	const [songs, setSongs] = useState<Song[]>([]);
+	const [songs, setSongs] = useState<Song[] | null>(null);
 	const [pack, setPack] = useState<Pack>({
 		packPath: '/',
 		title: '',
@@ -46,16 +47,19 @@ export default function NewPack() {
 	const router = useRouter();
 
 	if (ipcRenderer) {
-		if (songs.length === 0)
+		if (!songs)
 			ipcRenderer
-				.invoke('fileParser.GetAllSongs')
+				.invoke('fileParser.GetAllSongs', true)
 				.then(_ => setSongs(_))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		if (router.query?.path && pack.packPath == '/')
-			ipcRenderer.invoke('fileParser.GetPackAtPath', router.query.path).then(_ => setPack(_));
+			ipcRenderer
+				.invoke('fileParser.GetPackAtPath', decodeURIComponent(router.query.path as string))
+				.then(_ => setPack(_));
 	}
 
 	const paginate = (array: any[], page_size: number, page_number: number) => {
+		if (!array) return [];
 		return array.slice((page_number - 1) * page_size, page_number * page_size);
 	};
 
@@ -109,9 +113,10 @@ export default function NewPack() {
 	};
 
 	const save = e => {
+		Notifications.info('Creating/updating pack');
 		ipcRenderer
 			.invoke('packManager.GeneratePack', pack)
-			.then(_ => (!_ ? console.error('failed to create pack') : undefined));
+			.then(_ => (!_ ? Notifications.error('failed to create pack') : undefined));
 		e.preventDefault();
 	};
 
@@ -126,15 +131,24 @@ export default function NewPack() {
 			})
 			.then(saveTo => {
 				if (!saveTo.canceled) {
+					Notifications.info('Starting pack export, this can take a while');
 					ipcRenderer
 						.invoke('packManager.ExportPack', {
 							packPath: pack.packPath,
 							saveTo: saveTo.filePath,
 						})
-						.then(_ => alert('Exported successfully'))
-						.catch(e => console.error(e));
+						.then(_ => Notifications.success('Finished exporting'))
+						.catch(e => Notifications.error(e));
 				}
 			});
+	};
+
+	const deletePack = () => {
+		Notifications.success('Deleting pack');
+		ipcRenderer.invoke('packManager.DeletePack', pack.packPath).then(_ => {
+			Notifications.success('Successfully deleted pack');
+			router.back();
+		});
 	};
 
 	return (
@@ -145,6 +159,11 @@ export default function NewPack() {
 					className="float-right mr-2 rounded-md bg-gray-700 px-1 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] transition-all duration-100 ease-in-out hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(100,100,100,0.15)]"
 					onClick={exportPack}>
 					<p className="px-2 text-lg">Export</p>
+				</button>
+				<button
+					className="float-right mr-2 rounded-md bg-gray-700 px-1 shadow-[6px_6px_0px_0px_rgba(100,100,100,0.15)] transition-all duration-100 ease-in-out hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(100,100,100,0.15)]"
+					onClick={deletePack}>
+					<p className="px-2 text-lg">Delete</p>
 				</button>
 			</h1>
 			<hr />

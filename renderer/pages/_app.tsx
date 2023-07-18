@@ -4,7 +4,8 @@ import '../styles/globals.css';
 import Navbar from '@components/navbar';
 import ErrorPopup from '@components/errorPopup';
 import { useRouter } from 'next/router';
-import { Head } from 'next/document';
+import { NotificationContainer } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -32,6 +33,7 @@ function PackUI({ Component, pageProps }: AppProps) {
 			<ErrorPopup />
 			<Navbar />
 			<Component {...pageProps} />
+			<NotificationContainer />
 		</>
 	);
 }

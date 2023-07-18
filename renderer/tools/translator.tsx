@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { JSX, useState } from 'react';
 import { vsprintf } from 'sprintf-js';
+import Notifications from '@tools/notifications';
 
 interface Props {
 	translation: string;
@@ -25,7 +26,7 @@ function Translator(props: unknown): unknown {
 				ipcRenderer
 					.invoke('translator.GetTranslation', props)
 					.then(_ => setString(_))
-					.catch(e => console.error(e));
+					.catch(e => Notifications.error(e));
 		}
 
 		return translatedString;
@@ -35,7 +36,7 @@ function Translator(props: unknown): unknown {
 				ipcRenderer
 					.invoke('translator.GetTranslation', props['translation'])
 					.then(_ => setString(_))
-					.catch(e => console.error(e));
+					.catch(e => Notifications.error(e));
 		}
 
 		const vars = props['vars'] || [];

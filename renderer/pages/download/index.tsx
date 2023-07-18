@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { ipcRenderer } from 'electron';
 import Pack from '@classes/pack';
 import { BiRefresh } from 'react-icons/bi';
-import Song from '@classes/song';
+import Notifications from '@tools/notifications';
 
 export default function Download() {
 	let [packs, setPacks] = useState<Pack[] | null>(null);
@@ -17,7 +17,7 @@ export default function Download() {
 			ipcRenderer
 				.invoke('packManager.GetDownloadablePacks')
 				.then(_ => setPacks(_))
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 	}
 
 	const refreshPacks = () => {
@@ -28,7 +28,7 @@ export default function Download() {
 					setPacks(_);
 					setFilteredPacks(_);
 				})
-				.catch(e => console.error(e));
+				.catch(e => Notifications.error(e));
 		setPacks([]);
 		setFilteredPacks([]);
 	};
