@@ -15,7 +15,7 @@
 	"settings.packDownloadApis.label": "API для скачивания наборов",
 	"settings.packDownloadApis.placeholder": "Нажмите Enter, чтобы добавить новый API",
 	"editor.title": "Редактор",
-	"editor.new.title": "Pack Editor",
+	"editor.new.title": "Редактор наборов",
 	"editor.new.packname.label": "Название набора",
 	"editor.new.author.label": "Автор",
 	"editor.new.artist.label": "Артист(ы)",
