@@ -15,7 +15,7 @@
 	"settings.packDownloadApis.label": "Pack Download-APIs",
 	"settings.packDownloadApis.placeholder": "Drücke Enter um eine neue API hinzuzufügen",
 	"editor.title": "Editor",
-	"editor.new.title": "Pack-Ersteller",
+	"editor.new.title": "Pack Editor",
 	"editor.new.packname.label": "Packname",
 	"editor.new.author.label": "Autor",
 	"editor.new.artist.label": "Künstler",
