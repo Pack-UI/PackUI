@@ -31,7 +31,7 @@
 		"autoprefixer": "^10.4.7",
 		"decompress": "^4.2.1",
 		"download": "^8.0.0",
-		"electron": "^21.3.3",
+		"electron": "^22.3.25",
 		"electron-builder": "^23.6.0",
 		"electron-log": "^5.0.0-beta.24",
 		"electron-serve": "^1.1.0",
